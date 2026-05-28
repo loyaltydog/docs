@@ -1,0 +1,38 @@
+---
+title: "Shopify"
+description: "Connect a Shopify storefront to LoyaltyDog."
+---
+
+The LoyaltyDog Shopify app syncs customers and orders from your Shopify storefront into your LoyaltyDog loyalty program in real time.
+
+## What it does
+
+- Creates a LoyaltyDog customer record the first time a Shopify customer places an order.
+- Awards loyalty points on order completion, based on rules you configure in your program.
+- Optionally issues a wallet pass to the customer for in-store recognition.
+- Mirrors refunds and cancellations back to the loyalty program.
+
+## Install
+
+1. Sign in to your Shopify admin.
+2. Visit the LoyaltyDog app listing (link available from [loyalty.dog/contact-us](https://loyalty.dog/contact-us)).
+3. Click **Install** and approve the scopes.
+4. In the app's settings page, paste your LoyaltyDog **API token** and select the target **program**.
+
+## Configuration
+
+| Setting | Required | Description |
+| ------- | -------- | ----------- |
+| API token | Yes | Bearer token for your LoyaltyDog merchant account |
+| Program ID | Yes | The LoyaltyDog program orders should award points to |
+| Points-per-dollar | No | Override the program default for this storefront |
+| Issue wallet pass on signup | No | Send the customer an Apple/Google Wallet pass after their first order |
+
+## Troubleshooting
+
+- **Orders aren't awarding points** — Confirm the API token is valid and that the program ID matches a program your token owns.
+- **Customer not created** — Make sure the Shopify customer has an email address; LoyaltyDog dedupes on email.
+
+<Tip>
+  Need a custom field synced from Shopify? Use the program's [custom fields](/api-reference) endpoints to define it, then map it in the app's settings.
+</Tip>

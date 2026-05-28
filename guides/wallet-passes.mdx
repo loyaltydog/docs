@@ -1,0 +1,31 @@
+---
+title: "Wallet passes"
+description: "Issue Apple Wallet and Google Wallet passes from LoyaltyDog templates."
+---
+
+LoyaltyDog generates mobile wallet passes (Apple Wallet `.pkpass` and Google Wallet objects) directly from reusable templates, so a customer can carry their loyalty card or gift card in their phone.
+
+## Concepts
+
+- **Pass type** — A class of pass: loyalty card, gift card, coupon. Registered with Apple via your developer team's pass type ID.
+- **Template** — A reusable design (colors, fields, logo) bound to a pass type. Templates have versions; new passes inherit the latest.
+- **Pass** — A concrete instance issued to a single customer. Identified by a serial number.
+
+## Typical workflow
+
+1. **Register a pass type.** `POST /v2/passtypes` once per type. For Apple, generate a CSR via `GET /v2/passtypes/new/csr` and sign it through your Apple Developer account.
+2. **Create a template.** `POST /v2/templates` with the visual design and field bindings.
+3. **Issue passes.** `POST /v2/templates/{templateId}/pass` issues a pass to a customer.
+4. **Send the install URL.** Email or text the customer the `savetowallet` URL from `GET /v2/passes/{passTypeIdentifier}/{serialNumber}/url`.
+
+See the [API reference](/api-reference) for full request and response schemas.
+
+## Updating passes
+
+Push updates by re-issuing or by modifying the pass's underlying fields — installed passes automatically receive Apple Wallet and Google Wallet push updates.
+
+## Best practices
+
+- **Use a single template per pass family.** Customers see consistent branding even if your underlying program changes.
+- **Test in sandbox first.** Apple's pass validation rules are strict; iterating against a production pass type can pollute your serial number space.
+- **Keep payloads small.** Don't pack everything into the pass — link out to your portal for detail.

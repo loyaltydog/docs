@@ -1,0 +1,95 @@
+---
+title: "Connect an MCP client"
+description: "Wire the LoyaltyDog MCP server into Claude Desktop, Claude Code, Cursor, and Windsurf."
+---
+
+Once you've [installed the MCP server](/mcp/installation), add it to your AI assistant.
+
+Replace `/absolute/path/to/core_api/mcp` with the local checkout path on your machine, and `your_token_here` with your API token.
+
+## Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "loyaltydog": {
+      "command": "python3",
+      "args": ["-m", "server"],
+      "cwd": "/absolute/path/to/core_api/mcp",
+      "env": {
+        "LOYALTYDOG_API_URL": "https://api.loyalty.dog/api/v2",
+        "LOYALTYDOG_API_TOKEN": "your_token_here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving.
+
+## Claude Code (CLI)
+
+From any project directory:
+
+```bash
+claude mcp add loyaltydog \
+  --command python3 \
+  --args -m server \
+  --cwd /absolute/path/to/core_api/mcp \
+  --env LOYALTYDOG_API_URL=https://api.loyalty.dog/api/v2 \
+  --env LOYALTYDOG_API_TOKEN=your_token_here
+```
+
+## Cursor
+
+Edit `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "loyaltydog": {
+      "command": "python3",
+      "args": ["-m", "server"],
+      "cwd": "/absolute/path/to/core_api/mcp",
+      "env": {
+        "LOYALTYDOG_API_URL": "https://api.loyalty.dog/api/v2",
+        "LOYALTYDOG_API_TOKEN": "your_token_here"
+      }
+    }
+  }
+}
+```
+
+## Windsurf
+
+Edit `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "loyaltydog": {
+      "command": "python3",
+      "args": ["-m", "server"],
+      "cwd": "/absolute/path/to/core_api/mcp",
+      "env": {
+        "LOYALTYDOG_API_URL": "https://api.loyalty.dog/api/v2",
+        "LOYALTYDOG_API_TOKEN": "your_token_here"
+      }
+    }
+  }
+}
+```
+
+## Verify
+
+In your AI assistant, ask:
+
+> "List my LoyaltyDog programs."
+
+You should see the assistant call the MCP server and return real data scoped to your token.
+
+<Tip>
+  If the client can't find the server, check that `python3` is on your `PATH` and that `cwd` points to the directory containing `server.py`.
+</Tip>

@@ -1,0 +1,52 @@
+---
+title: "API reference"
+description: "The LoyaltyDog REST API, generated live from our OpenAPI spec."
+---
+
+The pages under this tab are generated automatically from [`https://api.loyalty.dog/openapi.json`](https://api.loyalty.dog/openapi.json). Whatever ships in production is what you see here.
+
+## Base URL
+
+```
+https://api.loyalty.dog/api/v2
+```
+
+## Authentication
+
+Every request requires a bearer token. See [Authentication](/authentication) for details.
+
+```http
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+## Versioning
+
+The API is versioned in the path (`/api/v2`). Breaking changes go to a new version; non-breaking additions land in place. Material changes are listed in the [Changelog](/resources/changelog).
+
+## Rate limits
+
+The API enforces per-token rate limits. When you exceed the limit, you'll receive a `429 Too Many Requests` response with a `Retry-After` header — back off and retry after the indicated interval.
+
+## Errors
+
+Errors follow a consistent shape:
+
+```json
+{
+  "error": {
+    "code": "string",
+    "message": "human-readable description",
+    "details": { }
+  }
+}
+```
+
+| Status | Meaning |
+| ------ | ------- |
+| `400` | Malformed request or invalid payload |
+| `401` | Missing or invalid token |
+| `403` | Token does not own the target resource |
+| `404` | Resource does not exist |
+| `409` | Conflicting state (e.g., duplicate creation) |
+| `429` | Rate-limited |
+| `5xx` | Server error — retry with backoff |

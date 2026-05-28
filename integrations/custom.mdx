@@ -1,0 +1,63 @@
+---
+title: "Build a custom integration"
+description: "Connect any system to LoyaltyDog by calling the REST API directly."
+---
+
+If LoyaltyDog doesn't yet have a first-party integration for your platform, you can build one against the REST API — the same surface our first-party integrations use.
+
+## High-level flow
+
+A typical integration does three things:
+
+1. **Identify the customer.** Look up or create a LoyaltyDog customer by email, phone, or a custom identifier.
+2. **Record activity.** Post a transaction so the program's rules credit points or issue rewards.
+3. **Surface state back to the user.** Fetch the wallet pass URL, point balance, or gift card balance to display in your UI.
+
+## A minimal example
+
+```bash
+# 1. Create or find the customer
+curl -sS -X POST "$LOYALTYDOG_API_URL/customers" \
+  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "programId": "prog_123",
+    "email": "ada@example.com"
+  }'
+
+# 2. Award points for a sale
+curl -sS -X POST "$LOYALTYDOG_API_URL/loyalty/programs/prog_123/transactions" \
+  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": "cust_456",
+    "type": "earn",
+    "amount": 5000,
+    "currency": "USD",
+    "reference": "order_789"
+  }'
+```
+
+## Best practices
+
+- **Make calls idempotent.** Use your own order or transaction ID in the `reference` field so retries don't double-credit.
+- **Handle 429s gracefully.** Back off when you see rate-limit responses and respect the `Retry-After` header.
+- **Subscribe to webhooks.** Don't poll for state changes — let LoyaltyDog notify you. See [Webhooks](/guides/webhooks).
+- **Scope tokens per integration.** Use a dedicated app key for each integration so you can rotate or revoke without impacting other systems.
+
+## Reference
+
+<CardGroup cols={2}>
+  <Card title="Full API" icon="code" href="/api-reference">
+    Every endpoint, request, and response schema.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Bearer tokens, app keys, and rotation.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/guides/webhooks">
+    Real-time event delivery.
+  </Card>
+  <Card title="MCP server" icon="robot" href="/mcp/overview">
+    For AI-assistant-driven integrations.
+  </Card>
+</CardGroup>

@@ -1,0 +1,53 @@
+---
+title: "MCP overview"
+description: "Query LoyaltyDog from Claude, Cursor, Windsurf, and other Model Context Protocol clients."
+---
+
+The LoyaltyDog MCP server exposes our REST API as a set of structured tools any [Model Context Protocol](https://modelcontextprotocol.io/) client can call. It's an HTTP wrapper around the LoyaltyDog API — no direct database access — and can be pointed at development, staging, or production.
+
+## What you can do
+
+Once connected, an AI assistant can answer natural-language questions about your loyalty data:
+
+- "Show me the top ten loyalty programs by active customers this month."
+- "List gift cards issued in the last 24 hours."
+- "What's the wallet-pass install rate for program XYZ?"
+- "Create a new customer record for ada@example.com in program ABC."
+
+The MCP server enforces the same authentication and program-isolation rules as the underlying REST API — it cannot reach data your token does not own.
+
+## Architecture
+
+```
+┌──────────────┐   MCP   ┌──────────────┐   HTTPS  ┌──────────────────┐
+│ AI assistant │ ───────▶│ MCP server   │ ───────▶│ LoyaltyDog API   │
+│ (Claude, …)  │         │ (local proc) │          │ api.loyalty.dog  │
+└──────────────┘         └──────────────┘          └──────────────────┘
+                              │
+                              └── bearer token from env
+```
+
+The server runs as a local process started by your AI client. Your bearer token never leaves your machine except in outbound calls to the LoyaltyDog API.
+
+## Tool surface
+
+The MCP server covers the high-traffic parts of the API:
+
+- **Customers** — list, get, create, update
+- **Loyalty programs** — list, get, update, custom fields
+- **Gift cards** — issue, redeem, search, balance check, history
+- **Wallet passes** — issue, list, regenerate, install URL
+- **Reporting** — generate program reports
+
+For everything else, hit the REST API directly. See the [API reference](/api-reference).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Install the server" icon="terminal" href="/mcp/installation">
+    Clone, configure, and run the MCP server locally.
+  </Card>
+  <Card title="Connect a client" icon="plug" href="/mcp/clients">
+    Wire up Claude Desktop, Claude Code, Cursor, or Windsurf.
+  </Card>
+</CardGroup>

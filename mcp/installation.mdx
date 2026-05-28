@@ -1,0 +1,54 @@
+---
+title: "Install the MCP server"
+description: "Clone, configure, and run the LoyaltyDog MCP server locally."
+---
+
+The MCP server lives in the `core_api/mcp` directory of the LoyaltyDog core API repository. It's a Python process you start locally via your AI assistant's MCP config.
+
+## Prerequisites
+
+- Python 3.11 or later
+- A LoyaltyDog API token ([see Authentication](/authentication))
+- An MCP-capable client: Claude Desktop, Claude Code, Cursor, Windsurf, or any other MCP host
+
+## Install
+
+```bash
+git clone https://github.com/loyaltydog/core_api.git
+cd core_api/mcp
+pip install -r requirements.txt
+```
+
+## Configure
+
+The server reads two environment variables:
+
+| Variable | Purpose | Example |
+| -------- | ------- | ------- |
+| `LOYALTYDOG_API_URL` | Base URL for the v2 API (no trailing slash) | `https://api.loyalty.dog/api/v2` |
+| `LOYALTYDOG_API_TOKEN` | Bearer token for API authentication | `eyJhbGc…` |
+
+You can set them inline in your MCP client config (recommended — see the [client setup guide](/mcp/clients)) or via a local `.env`:
+
+```bash
+cp .env.example .env
+# Edit .env and fill in your values
+```
+
+## Sanity-check the server
+
+You can start the server manually to verify your token works:
+
+```bash
+LOYALTYDOG_API_URL="https://api.loyalty.dog/api/v2" \
+LOYALTYDOG_API_TOKEN="your_token_here" \
+python3 -m server
+```
+
+If the process starts without authentication errors, you're ready to wire it into a client.
+
+## Next steps
+
+<Card title="Connect a client" icon="plug" href="/mcp/clients">
+  Step-by-step config for Claude Desktop, Claude Code, Cursor, and Windsurf.
+</Card>

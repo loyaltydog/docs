@@ -1,47 +1,76 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Make your first authenticated LoyaltyDog API call in under five minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This guide walks you from zero to a working API call against the LoyaltyDog REST API.
 
 ## Prerequisites
 
-Before you begin, you must have:
+- A LoyaltyDog merchant account. [Contact us](https://loyalty.dog/contact-us) if you don't have one.
+- An API token (bearer token) for that account.
+- `curl` or any HTTP client.
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+## 1. Set your credentials
 
-## Get started
+Export your token so the examples below pick it up:
 
-<Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+```bash
+export LOYALTYDOG_API_TOKEN="your_token_here"
+export LOYALTYDOG_API_URL="https://api.loyalty.dog/api/v2"
+```
 
-    ```bash
-    npm install your-package
-    ```
-  </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+<Warning>
+  Never commit tokens to source control. Use a secrets manager, environment variables, or your CI/CD provider's secret store.
+</Warning>
 
-    ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+## 2. Verify your token
 
-    ```bash
-    your-cli start
-    ```
-  </Step>
-</Steps>
+List the loyalty programs your token has access to:
+
+```bash
+curl -sS "$LOYALTYDOG_API_URL/loyalty/programs" \
+  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
+  -H "Accept: application/json"
+```
+
+A successful call returns a JSON array of program objects scoped to your merchant.
+
+## 3. Create your first customer
+
+Most workflows start with a customer record. Create one in a program you own:
+
+```bash
+curl -sS -X POST "$LOYALTYDOG_API_URL/customers" \
+  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "programId": "YOUR_PROGRAM_ID",
+    "email": "ada@example.com",
+    "firstName": "Ada",
+    "lastName": "Lovelace"
+  }'
+```
+
+The response includes the new `customerId`, which you'll use to issue points, gift cards, or wallet passes.
+
+## 4. Explore the API
+
+<CardGroup cols={2}>
+  <Card title="Full API reference" icon="code" href="/api-reference">
+    Every endpoint, request, and response.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Bearer tokens, app keys, and rotation.
+  </Card>
+  <Card title="MCP server" icon="robot" href="/mcp/overview">
+    Query the same data from Claude, Cursor, or Windsurf.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/guides/webhooks">
+    React to events in real time.
+  </Card>
+</CardGroup>
 
 <Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+  Need help? Email [support@loyalty.dog](mailto:support@loyalty.dog).
 </Tip>

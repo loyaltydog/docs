@@ -1,24 +1,46 @@
 ---
-title: "Introduction"
-description: "Welcome to your Mintlify project"
+title: "Welcome to LoyaltyDog"
+description: "Build loyalty programs, gift cards, and wallet passes on top of the LoyaltyDog platform."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+LoyaltyDog is a multi-tenant platform for running loyalty programs, gift cards, and mobile wallet passes. This site is for developers integrating with the LoyaltyDog REST API, our MCP server, or one of our partner integrations.
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages. This card links to the components overview in the Mintlify documentation with information about every available component.
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Make your first authenticated API call in under five minutes.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference">
+    Browse every endpoint, generated from our live OpenAPI spec.
+  </Card>
+  <Card title="MCP server" icon="robot" href="/mcp/overview">
+    Query LoyaltyDog from Claude, Cursor, Windsurf, and other AI assistants.
+  </Card>
+  <Card title="Integrations" icon="plug" href="/integrations/overview">
+    Shopify, Square, Clover, Eposnow, Zapier, and custom integrations.
+  </Card>
+</CardGroup>
 
-  Edit this card to link to a different page in your project when you add more content.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file. This card links to the settings overview page in the Mintlify documentation with information about how to configure your project.
+## What's in the platform
 
-  Edit this card to link to a different page in your project when you add more content.
-</Card>
+<CardGroup cols={2}>
+  <Card title="Loyalty programs" icon="award">
+    Points, tiers, rewards, custom fields, and program-scoped customers.
+  </Card>
+  <Card title="Gift cards" icon="gift">
+    Issue, redeem, consolidate, and audit gift cards with multi-layer fraud detection.
+  </Card>
+  <Card title="Wallet passes" icon="wallet">
+    Apple Wallet and Google Wallet passes generated from reusable templates.
+  </Card>
+  <Card title="Webhooks" icon="bell">
+    Real-time event delivery for transactions, redemptions, and lifecycle events.
+  </Card>
+</CardGroup>
+
+## Getting an API key
+
+The LoyaltyDog API uses bearer-token authentication. To request a key for your merchant account, [contact us](https://loyalty.dog/contact-us). Once provisioned, you can manage app keys via [`POST /v2/appkeys`](/api-reference).
 
 <Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
+  Already have a key? Jump straight to the [Quickstart](/quickstart) or the [Authentication](/authentication) guide.
 </Tip>

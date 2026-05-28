@@ -1,64 +1,157 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "LoyaltyDog",
+  "description": "Developer documentation for the LoyaltyDog loyalty, gift card, and wallet pass platform.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#E02040",
+    "light": "#FF4D6A",
+    "dark": "#A00C24"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/logomark.png",
+  "logo": {
+    "light": "/logo/logofull.png",
+    "dark": "/logo/logofull.png",
+    "href": "https://loyalty.dog"
+  },
   "navigation": {
-    "pages": ["index", "quickstart"],
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "MCP",
+            "pages": [
+              "mcp/overview",
+              "mcp/installation",
+              "mcp/clients"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/shopify",
+              "integrations/square",
+              "integrations/clover",
+              "integrations/eposnow",
+              "integrations/zapier",
+              "integrations/custom"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/webhooks",
+              "guides/wallet-passes",
+              "guides/reporting"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "resources/changelog",
+              "resources/support",
+              "resources/status"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "openapi": {
+          "source": "https://api.loyalty.dog/openapi.json",
+          "directory": "api-reference"
+        }
+      }
+    ],
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "API status",
+          "href": "https://status.loyalty.dog",
+          "icon": "signal-bars"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Marketing site",
+          "href": "https://loyalty.dog",
+          "icon": "globe"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/loyaltydog",
+          "icon": "github"
         }
       ]
     }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@loyalty.dog"
+      },
+      {
+        "label": "Contact",
+        "href": "https://loyalty.dog/contact-us"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Get an API key",
+      "href": "https://loyalty.dog/contact-us"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+      "github": "https://github.com/loyaltydog",
+      "linkedin": "https://www.linkedin.com/company/loyaltydog",
+      "x": "https://x.com/loyaltydog"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          { "label": "Marketing site", "href": "https://loyalty.dog" },
+          { "label": "Pricing", "href": "https://loyalty.dog/pricing" },
+          { "label": "Contact", "href": "https://loyalty.dog/contact-us" }
+        ]
+      },
+      {
+        "header": "Developers",
+        "items": [
+          { "label": "API reference", "href": "/api-reference" },
+          { "label": "MCP server", "href": "/mcp/overview" },
+          { "label": "Status", "href": "https://status.loyalty.dog" }
+        ]
+      },
+      {
+        "header": "Legal",
+        "items": [
+          { "label": "Terms of service", "href": "https://loyalty.dog/loyalty-program-terms-service" },
+          { "label": "Privacy policy", "href": "https://loyalty.dog/privacy-policy" }
+        ]
+      }
+    ]
   }
 }

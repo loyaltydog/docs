@@ -1,0 +1,31 @@
+---
+title: "Eposnow"
+description: "Connect Eposnow terminals to your LoyaltyDog loyalty program."
+---
+
+The LoyaltyDog Eposnow integration ties Eposnow POS transactions into your LoyaltyDog program.
+
+## What it does
+
+- Awards points when an Eposnow sale completes.
+- Looks up customers by phone or email.
+- Issues, redeems, and consolidates LoyaltyDog gift cards from the Eposnow terminal.
+
+## Install
+
+1. From the Eposnow AppStore, install **LoyaltyDog**.
+2. Authorize the integration to read transactions.
+3. In the LoyaltyDog dashboard, link your Eposnow account to a LoyaltyDog program.
+
+## Configuration
+
+| Setting | Required | Description |
+| ------- | -------- | ----------- |
+| Eposnow API key | Yes | Generated in your Eposnow back office |
+| Program ID | Yes | LoyaltyDog program to credit |
+| Customer match priority | No | Choose `phone` or `email` for the lookup order |
+
+## Troubleshooting
+
+- **Transactions not syncing** — Confirm the Eposnow API key has read permission on transactions.
+- **Customer not matching** — Eposnow customers must have a phone number or email that matches a LoyaltyDog customer in the linked program.

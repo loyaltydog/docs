@@ -1,0 +1,36 @@
+---
+title: "Square"
+description: "Award loyalty points and issue gift cards from Square POS transactions."
+---
+
+The LoyaltyDog Square integration connects your Square POS or Square Online store to your LoyaltyDog loyalty program.
+
+## What it does
+
+- Awards points on every completed Square sale.
+- Looks up or creates LoyaltyDog customers based on the Square customer profile.
+- Issues and redeems LoyaltyDog gift cards directly from a Square terminal.
+- Mirrors refunds back to the loyalty program.
+
+## Install
+
+1. From the Square App Marketplace, install the LoyaltyDog app.
+2. Authorize access to customers, orders, and payments.
+3. In the LoyaltyDog dashboard, link the Square location to a LoyaltyDog program.
+
+## Configuration
+
+| Setting | Required | Description |
+| ------- | -------- | ----------- |
+| Square location | Yes | The Square location to sync transactions from |
+| Program ID | Yes | LoyaltyDog program that receives the activity |
+| Allow gift card redemption | No | Enable LoyaltyDog gift cards as a tender at the terminal |
+
+## Troubleshooting
+
+- **Sales aren't producing points** — Check that the Square location is linked to a LoyaltyDog program in the dashboard.
+- **Gift card balance not updating** — Verify the gift card belongs to the same program as the Square location.
+
+<Tip>
+  Multiple Square locations can map to the same LoyaltyDog program, or each to its own program — the choice is yours.
+</Tip>

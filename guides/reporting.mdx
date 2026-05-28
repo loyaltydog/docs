@@ -1,0 +1,40 @@
+---
+title: "Reporting"
+description: "Pull program performance metrics out of LoyaltyDog."
+---
+
+LoyaltyDog exposes both endpoint-driven and dashboard-driven reporting. This guide covers the API surface.
+
+## What's available
+
+| Endpoint family | What it tells you |
+| ---------------- | ----------------- |
+| `GET /v2/merchants/{id}/metrics` | High-level merchant-wide KPIs |
+| `GET /v2/merchants/{id}/metrics/chart` | Time-series data for the merchant dashboard |
+| `GET /v2/reports` | Per-program reports (transactions, customers, gift card activity) |
+
+See the [API reference](/api-reference) for full parameter and response details.
+
+## Common patterns
+
+### Daily snapshot
+
+Schedule a daily job that pulls metrics and pipes them into your BI tool:
+
+```bash
+curl -sS "$LOYALTYDOG_API_URL/merchants/$MERCHANT_ID/metrics?period=24h" \
+  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN"
+```
+
+### Time-series for a custom dashboard
+
+```bash
+curl -sS "$LOYALTYDOG_API_URL/merchants/$MERCHANT_ID/metrics/chart?metric=points_awarded&period=30d&granularity=day" \
+  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN"
+```
+
+## Best practices
+
+- **Cache aggressively.** Reports are eventually consistent — minute-level freshness is more than enough for most dashboards.
+- **Page through large reports.** Use the `limit` and `cursor` parameters where supported.
+- **For real-time, prefer webhooks.** Polling reports is the wrong tool when you need event-level reaction. See [Webhooks](/guides/webhooks).

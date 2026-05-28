@@ -1,55 +1,57 @@
-# Mintlify Starter Kit
+# LoyaltyDog Developer Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Source for the LoyaltyDog developer docs, published with [Mintlify](https://mintlify.com).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+- **Live site:** [loyaltydog.mintlify.app](https://loyaltydog.mintlify.app) (custom domain `docs.loyalty.dog` planned)
+- **API reference source:** generated live from [`https://api.loyalty.dog/openapi.json`](https://api.loyalty.dog/openapi.json) — no manual sync required when the API ships changes
+- **Repo:** [`loyaltydog/docs`](https://github.com/loyaltydog/docs)
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## What's documented
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+| Area | Lives in |
+| ---- | -------- |
+| Introduction, quickstart, authentication | `index.mdx`, `quickstart.mdx`, `authentication.mdx` |
+| Full REST API reference (auto-generated) | `api-reference/` tab in `docs.json` |
+| MCP server (Claude, Cursor, Windsurf, Claude Code) | `mcp/` |
+| Platform integrations (Shopify, Square, Clover, Eposnow, Zapier) | `integrations/` |
+| Webhooks, wallet passes, reporting guides | `guides/` |
+| Changelog, support, status | `resources/` |
 
-## AI-assisted writing
+## Local development
 
-Set up your AI coding tool to work with Mintlify:
+Install the Mintlify CLI and run a local preview:
 
 ```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
+npm install -g mint
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+The dev server runs at [http://localhost:3000](http://localhost:3000).
 
-## Publishing changes
+## Editing content
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+- All content pages are MDX with YAML frontmatter (`title`, `description`).
+- Navigation order lives in `docs.json` under `navigation.tabs`.
+- Branding (colors, logo, favicon) is in `docs.json` under `colors` and `logo`.
+- The API reference is generated automatically from the live OpenAPI spec — no MDX files to maintain for individual endpoints.
 
-## Need help?
+## Publishing
 
-### Troubleshooting
+The Mintlify GitHub App watches this repository. Any push to `main` triggers a production deploy.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+## Branch protection
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+`main` is the only branch and is protected:
+
+- Only members of the `loyaltydog` GitHub organization can push.
+- All changes go through a pull request reviewed by an organization member.
+
+External contributors can open issues but cannot push directly. To propose a change, open a pull request — an organization member will review and merge.
+
+## Custom domain
+
+The custom domain `docs.loyalty.dog` is configured in the [Mintlify dashboard](https://dashboard.mintlify.com/) under **Settings → Domain**. DNS for `docs.loyalty.dog` is managed in the LoyaltyDog DNS zone and points (`CNAME`) at the Mintlify-provided target.
+
+## Support
+
+For documentation issues or suggestions, open an issue on this repo. For platform support, see [support@loyalty.dog](mailto:support@loyalty.dog).

@@ -1,0 +1,58 @@
+---
+title: "Authentication"
+description: "How to authenticate against the LoyaltyDog API with bearer tokens and app keys."
+---
+
+The LoyaltyDog API uses **bearer token authentication**. Every request must include an `Authorization` header containing a valid token.
+
+```http
+Authorization: Bearer YOUR_API_TOKEN
+```
+
+## Token types
+
+LoyaltyDog issues two token shapes:
+
+| Token | Use case | How to obtain |
+| ----- | -------- | -------------- |
+| **Merchant token** | First-party access to a merchant's own programs, customers, and gift cards | [Contact us](https://loyalty.dog/contact-us) to provision |
+| **App key** | Third-party apps acting on behalf of a merchant | `POST /v2/appkeys` (see the [API reference](/api-reference)) |
+
+## Multi-tenancy
+
+All resources are scoped to a `programId`. Tokens are bound to a merchant; the API rejects any request that targets a program your token does not own. This program-based isolation is enforced server-side — there is no client-side filtering to bypass.
+
+## MFA on user logins
+
+End-user authentication (for example, merchant staff signing into the dashboard) supports TOTP-based MFA via the `/v2/token/mfa/*` endpoints. Programmatic API access uses tokens directly and does not require MFA.
+
+## Rotating tokens
+
+Treat tokens like passwords. To rotate:
+
+1. Issue a new token (via the dashboard or `POST /v2/appkeys`).
+2. Deploy the new token to your services.
+3. Revoke the old token.
+
+<Tip>
+  Use a secrets manager — AWS Secrets Manager, GCP Secret Manager, HashiCorp Vault, Infisical, or your platform's equivalent — and never bake tokens into images or commit them.
+</Tip>
+
+## Common errors
+
+| Status | Meaning | Fix |
+| ------ | ------- | --- |
+| `401 Unauthorized` | Missing or invalid token | Check the `Authorization` header and token validity |
+| `403 Forbidden` | Token does not own the target resource | Verify the `programId` matches your merchant |
+| `429 Too Many Requests` | Rate limit exceeded | Back off; respect the `Retry-After` header |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Walk through your first authenticated request.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference">
+    Browse every endpoint and schema.
+  </Card>
+</CardGroup>

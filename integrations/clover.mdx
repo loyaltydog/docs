@@ -1,0 +1,32 @@
+---
+title: "Clover"
+description: "Run LoyaltyDog on Clover devices."
+---
+
+The LoyaltyDog Clover app turns any Clover Mini, Flex, or Station into a loyalty terminal.
+
+## What it does
+
+- Scans LoyaltyDog wallet passes at checkout.
+- Awards points based on the order total.
+- Looks up customer profiles by phone, email, or pass barcode.
+- Redeems LoyaltyDog gift cards as a tender.
+
+## Install
+
+1. From the Clover App Market on your merchant dashboard, install **LoyaltyDog**.
+2. Approve the requested permissions.
+3. Open the app on the Clover device and sign in with your LoyaltyDog credentials.
+4. Select the LoyaltyDog program to use for this merchant.
+
+## Configuration
+
+| Setting | Required | Description |
+| ------- | -------- | ----------- |
+| Program ID | Yes | LoyaltyDog program that this Clover merchant rolls up to |
+| Show points on receipt | No | Print the customer's running point balance |
+
+## Troubleshooting
+
+- **Pass scan fails** — Make sure the device has internet connectivity and the merchant is signed into the LoyaltyDog app.
+- **No customer match** — The pass may belong to a different program; verify the program ID matches.

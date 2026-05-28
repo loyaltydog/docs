@@ -1,0 +1,47 @@
+---
+title: "Webhooks"
+description: "Receive real-time events from LoyaltyDog instead of polling."
+---
+
+LoyaltyDog delivers events to your HTTPS endpoints in near real-time. Use webhooks to keep your systems in sync without polling.
+
+## Lifecycle
+
+1. **Register an endpoint** with `POST /v2/webhooks`, supplying the URL and the event types you care about.
+2. **Receive events.** LoyaltyDog signs each delivery and posts JSON to your endpoint.
+3. **Acknowledge with `2xx`.** Any other response triggers retry with exponential backoff.
+4. **Enable, disable, or delete** the subscription as needed via `/v2/webhooks/{webhookId}`.
+
+See the [API reference](/api-reference) for the full webhook management surface.
+
+## Event categories
+
+- **Customer lifecycle** — created, updated, deleted
+- **Loyalty transactions** — earn, redeem, adjust
+- **Gift cards** — issued, redeemed, consolidated, voided
+- **Wallet passes** — installed, removed, updated
+
+## Building a receiver
+
+A robust webhook receiver:
+
+- **Responds quickly.** Acknowledge with `2xx` immediately, then process asynchronously.
+- **Validates the signature.** Every delivery includes a signature header derived from your webhook's secret.
+- **Is idempotent.** Treat the event ID as the dedup key — LoyaltyDog may redeliver during retries.
+- **Logs everything.** You'll need it the first time something goes wrong.
+
+```javascript
+// Example: an Express receiver
+app.post('/webhooks/loyaltydog', express.json(), (req, res) => {
+  res.status(200).end();                    // ack first
+  enqueueForProcessing(req.body);           // then process async
+});
+```
+
+## Retries
+
+Failed deliveries (non-2xx, timeout, or DNS error) retry with exponential backoff for up to 24 hours. Persistent failures disable the webhook automatically; re-enable via `POST /v2/webhooks/{webhookId}/enable`.
+
+<Tip>
+  In development, expose your local receiver with a tunnel like `ngrok` or `cloudflared` so LoyaltyDog can reach it.
+</Tip>

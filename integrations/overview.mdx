@@ -1,0 +1,35 @@
+---
+title: "Integrations overview"
+description: "First-party LoyaltyDog integrations for major commerce, POS, and automation platforms."
+---
+
+LoyaltyDog ships first-party integrations for the platforms most merchants already run on. Each integration wires the platform's customers, orders, and transactions into your loyalty program automatically.
+
+<CardGroup cols={2}>
+  <Card title="Shopify" icon="bag-shopping" href="/integrations/shopify">
+    Sync customers and orders from Shopify storefronts.
+  </Card>
+  <Card title="Square" icon="square" href="/integrations/square">
+    Award points and issue gift cards from Square POS transactions.
+  </Card>
+  <Card title="Clover" icon="store" href="/integrations/clover">
+    LoyaltyDog as a Clover app for in-store loyalty.
+  </Card>
+  <Card title="Eposnow" icon="cash-register" href="/integrations/eposnow">
+    Connect Eposnow terminals to your loyalty program.
+  </Card>
+  <Card title="Zapier" icon="bolt" href="/integrations/zapier">
+    No-code automations across thousands of apps.
+  </Card>
+  <Card title="Custom integration" icon="code" href="/integrations/custom">
+    Build directly against the REST API.
+  </Card>
+</CardGroup>
+
+## How integrations work
+
+Every integration is a thin adapter that translates platform events into LoyaltyDog API calls. They share the same authentication, multi-tenancy, and event model as anything you'd build yourself — so behavior is consistent whether the source is Shopify, a custom webhook, or a manual API call.
+
+<Tip>
+  Need a platform we don't have? See [Custom integration](/integrations/custom) — the REST API is the same surface our first-party integrations use.
+</Tip>

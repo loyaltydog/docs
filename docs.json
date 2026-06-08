@@ -40,6 +40,7 @@
             "pages": [
               "integrations/overview",
               "integrations/shopify",
+              "integrations/wordpress",
               "integrations/square",
               "integrations/clover",
               "integrations/eposnow",

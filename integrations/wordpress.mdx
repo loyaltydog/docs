@@ -1,0 +1,91 @@
+---
+title: "WordPress / WooCommerce"
+description: "Connect a WordPress + WooCommerce store to LoyaltyDog."
+---
+
+The LoyaltyDog WordPress plugin syncs customers and orders from your WooCommerce store into your LoyaltyDog loyalty program in real time, and renders a loyalty UI in the customer's **My Account** area.
+
+## What it does
+
+- Creates a LoyaltyDog customer record the first time a WooCommerce customer places an order.
+- Awards loyalty points on order completion, based on rules you configure in your program.
+- Lets customers redeem points for discount codes at checkout.
+- Surfaces the customer's points balance and the awards they can claim on the **My Account → Loyalty Program** page.
+
+## Install
+
+1. Sign in to your WordPress admin.
+2. Install the **LoyaltyDog** plugin from the WordPress plugin directory (or upload the ZIP).
+3. Activate the plugin, then open **LoyaltyDog → Settings**.
+4. Paste the single-use **activation key** from your onboarding email — the plugin exchanges it for your program credentials automatically.
+
+## Plugin-facing UI endpoints
+
+The plugin calls the `/wordpress/ui/*` endpoints to render the customer's loyalty UI. These authenticate with the plugin's API key (a `loyaltydog_pk_*` registration key **or** the legacy WordPress webhook token) sent as a Bearer token. `GET` requests identify the customer with `?email=` or `?customer_id=`.
+
+### `GET /wordpress/ui/eligible-awards`
+
+Returns the loyalty awards/offers a customer is currently eligible to claim. Backs the **My Account → Loyalty Program** page so it can list redeemable awards without re-deriving eligibility client-side.
+
+Only **LIVE** offers the customer can afford right now are returned — offers costing more points than the customer's balance (and offers blocked by `pointsMin`/`pointsMax`, per-customer/availability limits, or the customer's already-claimed offer) are excluded.
+
+**Request**
+
+```bash
+curl "https://api.loyalty.dog/v2/wordpress/ui/eligible-awards?email=customer@example.com" \
+  -H "Authorization: Bearer loyaltydog_pk_live_..."
+```
+
+**Query parameters**
+
+| Parameter | Required | Description |
+| --------- | -------- | ----------- |
+| `email` | Conditional | Customer email. Provide this **or** `customer_id`. |
+| `customer_id` | Conditional | LoyaltyDog customer id. Provide this **or** `email`. |
+
+**Response** — `200 OK`, a JSON array of eligible awards:
+
+```json
+[
+  {
+    "id": "664b1f77bcf86cd799439011",
+    "name": "Free Coffee",
+    "points_required": 100,
+    "pointsCost": 100,
+    "pointsMin": 0,
+    "pointsMax": null,
+    "limitPerCustomer": null,
+    "endDate": null,
+    "claimable": true
+  }
+]
+```
+
+| Field | Description |
+| ----- | ----------- |
+| `id` | Offer id, used as `offer_id` when claiming via `POST /wordpress/ui/claim`. |
+| `name` | Display name of the award. |
+| `points_required` | Points needed to claim (same as `pointsCost`; snake_case alias for the plugin UI). |
+| `pointsCost` | Points deducted on claim. |
+| `pointsMin` / `pointsMax` | Balance bounds the customer must fall within to claim. |
+| `limitPerCustomer` | Max times a single customer may claim, if set. |
+| `endDate` | Expiry of the offer, if set. |
+| `claimable` | Always `true` — every returned award is currently claimable. |
+
+**Errors**
+
+| Status | When |
+| ------ | ---- |
+| `401 Unauthorized` | Missing or invalid Bearer token. |
+| `400 Bad Request` | Neither `email` nor `customer_id` supplied. |
+| `404 Not Found` | No customer matches the supplied identity in this program. |
+
+## Troubleshooting
+
+- **Orders aren't awarding points** — Confirm the plugin activated successfully (Settings shows a linked program) and that order-completion webhooks are reaching LoyaltyDog.
+- **My Account page shows no awards** — The customer may not have enough points for any LIVE offer, or no offers are LIVE for the program. Check the program's offers in your dashboard.
+- **Customer not created** — Ensure the WooCommerce customer has an email address; LoyaltyDog dedupes on email.
+
+<Tip>
+  Awards listed by `/wordpress/ui/eligible-awards` are claimed with `POST /wordpress/ui/claim`, passing the award's `id` as `offer_id`.
+</Tip>

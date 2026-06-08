@@ -21,71 +21,44 @@ The LoyaltyDog WordPress plugin syncs customers and orders from your WooCommerce
 
 ## Plugin-facing UI endpoints
 
-The plugin calls the `/wordpress/ui/*` endpoints to render the customer's loyalty UI. These authenticate with the plugin's API key (a `loyaltydog_pk_*` registration key **or** the legacy WordPress webhook token) sent as a Bearer token. `GET` requests identify the customer with `?email=` or `?customer_id=`.
+The plugin calls the `/wordpress/ui/*` endpoints to render the customer's loyalty UI. These authenticate with the plugin's API token (a `loyaltydog_pk_*` registration key **or** the legacy WordPress webhook token) sent as a bearer token. `GET` requests identify the customer with `?email=` or `?customer_id=`.
 
-### `GET /wordpress/ui/eligible-awards`
+### Listing a customer's eligible awards
 
-Returns the loyalty awards/offers a customer is currently eligible to claim. Backs the **My Account → Loyalty Program** page so it can list redeemable awards without re-deriving eligibility client-side.
+`GET /v2/wordpress/ui/eligible-awards` returns the loyalty awards a customer can claim right now, and backs the **My Account → Loyalty Program** page so it can list redeemable awards without re-deriving eligibility client-side. Identify the customer with either `?email=` or `?customer_id=`.
 
-Only **LIVE** offers the customer can afford right now are returned — offers costing more points than the customer's balance (and offers blocked by `pointsMin`/`pointsMax`, per-customer/availability limits, or the customer's already-claimed offer) are excluded.
-
-**Request**
+Only **LIVE** offers the customer can afford are returned — offers costing more points than the customer's balance (and offers blocked by `pointsMin`/`pointsMax`, per-customer or availability limits, or an offer the customer has already claimed) are excluded.
 
 ```bash
-curl "https://api.loyalty.dog/v2/wordpress/ui/eligible-awards?email=customer@example.com" \
+curl "https://api.loyalty.dog/v2/wordpress/ui/eligible-awards?email=ada@example.com" \
   -H "Authorization: Bearer loyaltydog_pk_live_..."
 ```
 
-**Query parameters**
-
-| Parameter | Required | Description |
-| --------- | -------- | ----------- |
-| `email` | Conditional | Customer email. Provide this **or** `customer_id`. |
-| `customer_id` | Conditional | LoyaltyDog customer id. Provide this **or** `email`. |
-
-**Response** — `200 OK`, a JSON array of eligible awards:
+A successful call returns `200 OK` with a JSON array of awards. Each award carries an `id` (pass it as `offer_id` when claiming), a display `name`, and its points cost — exposed both as `pointsCost` and as the snake_case alias `points_required` for the plugin UI. Offers may also include the balance bounds (`pointsMin`/`pointsMax`), a per-customer claim limit (`limitPerCustomer`), and an `endDate`, each `null` when unset.
 
 ```json
 [
   {
-    "id": "664b1f77bcf86cd799439011",
+    "id": "prog_offer_123",
     "name": "Free Coffee",
     "points_required": 100,
     "pointsCost": 100,
     "pointsMin": 0,
     "pointsMax": null,
     "limitPerCustomer": null,
-    "endDate": null,
-    "claimable": true
+    "endDate": null
   }
 ]
 ```
 
-| Field | Description |
-| ----- | ----------- |
-| `id` | Offer id, used as `offer_id` when claiming via `POST /wordpress/ui/claim`. |
-| `name` | Display name of the award. |
-| `points_required` | Points needed to claim (same as `pointsCost`; snake_case alias for the plugin UI). |
-| `pointsCost` | Points deducted on claim. |
-| `pointsMin` / `pointsMax` | Balance bounds the customer must fall within to claim. |
-| `limitPerCustomer` | Max times a single customer may claim, if set. |
-| `endDate` | Expiry of the offer, if set. |
-| `claimable` | Always `true` — every returned award is currently claimable. |
-
-**Errors**
-
-| Status | When |
-| ------ | ---- |
-| `401 Unauthorized` | Missing or invalid Bearer token. |
-| `400 Bad Request` | Neither `email` nor `customer_id` supplied. |
-| `404 Not Found` | No customer matches the supplied identity in this program. |
+The endpoint responds with `401` for a missing or invalid bearer token, `400` when neither `email` nor `customer_id` is supplied, and `404` when no customer matches the supplied identity in the program.
 
 ## Troubleshooting
 
 - **Orders aren't awarding points** — Confirm the plugin activated successfully (Settings shows a linked program) and that order-completion webhooks are reaching LoyaltyDog.
-- **My Account page shows no awards** — The customer may not have enough points for any LIVE offer, or no offers are LIVE for the program. Check the program's offers in your dashboard.
+- **My Account page shows no awards** — The customer may not have enough points for any LIVE offer, or no offers are LIVE for the program. The `GET /v2/wordpress/ui/eligible-awards` response is empty in both cases. Check the program's offers in your dashboard.
 - **Customer not created** — Ensure the WooCommerce customer has an email address; LoyaltyDog dedupes on email.
 
 <Tip>
-  Awards listed by `/wordpress/ui/eligible-awards` are claimed with `POST /wordpress/ui/claim`, passing the award's `id` as `offer_id`.
+  Awards listed by `GET /v2/wordpress/ui/eligible-awards` are claimed with `POST /v2/wordpress/ui/claim`, passing the award's `id` as `offer_id`.
 </Tip>

@@ -53,11 +53,40 @@ A successful call returns `200 OK` with a JSON array of awards. Each award carri
 
 The endpoint responds with `401` for a missing or invalid bearer token, `400` when neither `email` nor `customer_id` is supplied, and `404` when no customer matches the supplied identity in the program.
 
+### Requesting a fresh activation code
+
+`POST /v2/wordpress/resend-activation` is **public and unauthenticated** — unlike the `/ui/*` endpoints above, it's called before the plugin has any credentials. A merchant whose activation link expired or was lost can use it to have a fresh activation code emailed to them.
+
+The endpoint is enumeration-safe: it always returns the same neutral `200` whether or not the email address is registered to a program, so it can't be used to probe which emails have LoyaltyDog accounts. Any failure looking up the account, minting a new code, or sending the email is swallowed server-side and reported to Sentry rather than surfaced to the caller.
+
+```bash
+curl -X POST "https://api.loyalty.dog/v2/wordpress/resend-activation" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "merchant@example.com"}'
+```
+
+A successful call always returns `200 OK` with the same static body:
+
+```json
+{
+  "message": "If an account exists for that email, we've sent a new activation code."
+}
+```
+
+The endpoint is rate-limited in layers, none of which change the response the caller sees:
+
+- **Per-IP** — 10 requests per hour, enforced before anything else runs.
+- **Per-email** — 5 requests per hour per address (tracked by a hashed key, not the raw email).
+- **Per-program** — the existing 60-second throttle on the underlying resend machinery.
+
+A request that trips any of these limits still gets the same neutral `200` — never a `429` — so a spent budget is indistinguishable from a successful send.
+
 ## Troubleshooting
 
 - **Orders aren't awarding points** — Confirm the plugin activated successfully (Settings shows a linked program) and that order-completion webhooks are reaching LoyaltyDog.
 - **My Account page shows no awards** — The customer may not have enough points for any LIVE offer, or no offers are LIVE for the program. The `GET /v2/wordpress/ui/eligible-awards` response is empty in both cases. Check the program's offers in your dashboard.
 - **Customer not created** — Ensure the WooCommerce customer has an email address; LoyaltyDog dedupes on email.
+- **Merchant never received a new activation code** — `POST /v2/wordpress/resend-activation` always returns `200`, even when nothing was sent (unknown email, or the per-email/per-program rate limit was already spent). Confirm the merchant's email matches the one on their LoyaltyDog account, and check spam/junk folders before assuming the request failed.
 
 <Tip>
   Awards listed by `GET /v2/wordpress/ui/eligible-awards` are claimed with `POST /v2/wordpress/ui/claim`, passing the award's `id` as `offer_id`.

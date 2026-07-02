@@ -31,15 +31,16 @@ The server runs as a local process started by your AI client. Your bearer token 
 
 ## Tool surface
 
-The MCP server covers the high-traffic parts of the API:
+The MCP server is **read-only** — it covers listing, getting, and searching the high-traffic parts of the API:
 
-- **Customers** — list, get, create, update
-- **Loyalty programs** — list, get, update, custom fields
-- **Gift cards** — issue, redeem, search, balance check, history
-- **Wallet passes** — issue, list, regenerate, install URL
-- **Reporting** — generate program reports
+- **Loyalty programs** — `list_programs`, `get_program`
+- **Customers** — `search_customers`, `get_customer`
+- **Loyalty transactions** — `get_customer_transactions`
+- **Wallet passes** — `list_passes`, `get_pass`
+- **Gift cards** — `list_gift_cards`, `get_gift_card`, `get_gift_card_transactions`
+- **System** — `get_system_health`
 
-For everything else, hit the REST API directly. See the [API reference](/api-reference).
+There are no create, update, issue, redeem, or reporting tools. For writes — creating or updating customers, issuing or redeeming gift cards, regenerating wallet passes, generating reports, and so on — hit the REST API directly. See the [API reference](/api-reference).
 
 ## Next steps
 

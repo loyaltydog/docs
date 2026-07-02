@@ -1,35 +1,86 @@
 ---
 title: "Square"
-description: "Award loyalty points and issue gift cards from Square POS transactions."
+description: "Award loyalty points and run points-discount checkouts from Square POS."
 ---
 
-The LoyaltyDog Square integration connects your Square POS or Square Online store to your LoyaltyDog loyalty program.
+The LoyaltyDog Square integration connects a Square merchant account to your LoyaltyDog loyalty program via OAuth, awards points on completed sales, and — for merchants using a LoyaltyDog kiosk device — lets a cashier apply a points discount directly at checkout.
 
 ## What it does
 
-- Awards points on every completed Square sale.
-- Looks up or creates LoyaltyDog customers based on the Square customer profile.
-- Issues and redeems LoyaltyDog gift cards directly from a Square terminal.
-- Mirrors refunds back to the loyalty program.
+- Awards loyalty points automatically when a Square sale completes, looking up or enrolling the LoyaltyDog customer from the Square customer profile.
+- Lets a customer without an attached profile at checkout claim their points afterward by scanning a QR code on their receipt.
+- Runs points-discount checkouts from a LoyaltyDog kiosk device: a cashier looks up the customer, previews the discount, and commits it either straight to a Square Terminal reader or as a parked Square order the cashier rings up manually.
+- Mirrors location, customer, and order changes from Square via webhooks (customer sync, payment/order updates, OAuth revocation).
 
 ## Install
 
-1. From the Square App Marketplace, install the LoyaltyDog app.
-2. Authorize access to customers, orders, and payments.
-3. In the LoyaltyDog dashboard, link the Square location to a LoyaltyDog program.
+Square uses an OAuth connection, not an App Marketplace install.
 
-## Configuration
+1. In the LoyaltyDog dashboard, go to **Loyalty → Square** and select **Connect Square**.
+2. You're redirected to Square to authorize LoyaltyDog for your merchant account. Approving the request returns you to the dashboard with your Square locations listed.
+3. For each Square location you want to sync, link it to a LoyaltyDog program from the location picker. A multi-location merchant can map each location to its own program, or all locations to one program.
 
-| Setting | Required | Description |
-| ------- | -------- | ----------- |
-| Square location | Yes | The Square location to sync transactions from |
-| Program ID | Yes | LoyaltyDog program that receives the activity |
-| Allow gift card redemption | No | Enable LoyaltyDog gift cards as a tender at the terminal |
+Square fixes the requested scopes at authorization time — if LoyaltyDog later needs a scope your connection doesn't have (for example, when kiosk checkout is enabled on a location for the first time), the dashboard prompts you to reconnect.
+
+## Kiosk device management
+
+A LoyaltyDog kiosk is a device at the register that a cashier uses to apply points discounts. Kiosks have no login of their own — they pair with a one-time code generated from the dashboard.
+
+1. From **Loyalty → Square → [location] → Devices**, select **Add device** and give it a name. The dashboard mints a short-lived (15-minute) one-time pairing code.
+2. On the kiosk device, enter the pairing code. It's exchanged for a long-lived device token the kiosk uses for all subsequent checkout calls — the plaintext code is shown once and can't be retrieved again.
+3. To decommission a device — it's lost, retired, or you suspect its token leaked — select **Revoke** next to the device in the dashboard. Revocation immediately invalidates the device's token; a revoked device must be paired again with a new code to resume checkouts.
+
+Device pairing and revocation are dashboard actions (not endpoints third-party tools call directly) — there's no merchant-facing REST API for device management.
+
+## Checkout modes
+
+Each linked Square location has a checkout mode that determines how a kiosk-committed points discount reaches Square:
+
+| Mode | Description |
+| ---- | ----------- |
+| **Terminal API** | The discount is pushed straight to a paired Square Terminal reader for the customer to tap or insert their card — no cashier order lookup needed. This is the primary path and works cashier-touchless. Requires a Terminal device to be paired to the kiosk. |
+| **Open ticket** | LoyaltyDog creates a Square order carrying the discount and leaves it open; the cashier finds and rings up that order on any Square hardware, including registers without a paired Terminal reader. |
+| **Disabled** | Kiosk checkout is turned off for the location; any checkout attempt is rejected. |
+
+Set the mode per location from **Loyalty → Square → [location] → Checkout mode** in the dashboard. A location with no mode set falls back to whatever mode the kiosk requests, for backward compatibility with connections made before checkout modes existed.
+
+## Claim and checkout endpoints
+
+The following endpoints are called by the LoyaltyDog QR-claim page and by kiosk devices — not typically by third-party integrators — but are documented here for completeness.
+
+### QR claim (no attached customer at checkout)
+
+When a Square sale completes without a customer attached, LoyaltyDog creates a pending claim instead of awarding points immediately. The receipt includes a QR code that lets the customer claim their points afterward.
+
+`GET /v2/square/pos/claim/lookup/{claim_token}` returns the merchant and order metadata for a claim token. It responds `200` for a valid, unclaimed token, `410` once the claim has expired or already been claimed, and `404` for an unknown token.
+
+`POST /v2/square/pos/claim/submit` awards the points and consumes the claim, given the `claimToken` plus a `contactType` (`email` or `phone`) and `contactValue` to identify or enroll the customer:
+
+```bash
+curl -X POST "https://api.loyalty.dog/v2/square/pos/claim/submit" \
+  -H "Content-Type: application/json" \
+  -d '{"claimToken": "...", "contactType": "email", "contactValue": "ada@example.com"}'
+```
+
+It responds `410` if the claim was already consumed or has expired, `404` for an unknown token, and `422` if the supplied contact can't be validated as an email or phone number.
+
+### Kiosk checkout pipeline
+
+Kiosk devices authenticate with the device token minted during pairing (see [Kiosk device management](#kiosk-device-management)). A checkout runs in three steps:
+
+1. `POST /v2/square/pos/lookup_customer` — find or enroll the customer by email or phone, returning their points balance and available (unreserved) balance.
+2. `POST /v2/square/pos/preview_order` — given a `customerId` and the basket, LoyaltyDog computes the discount server-side against the program's active price rule and puts a short-lived (5-minute) hold on the points. The client never supplies the discount amount.
+3. `POST /v2/square/pos/commit_checkout` — consumes the preview exactly once and creates the Square order with the discount applied, then dispatches it per the location's [checkout mode](#checkout-modes): pushed to a Terminal reader, or parked as an open order for the cashier to ring up.
+
+`GET /v2/square/pos/checkout_status/{our_checkout_id}` polls a checkout's lifecycle status (`pending`, `sent`, `completed`, `failed`, `canceled`), scoped to the requesting device.
 
 ## Troubleshooting
 
-- **Sales aren't producing points** — Check that the Square location is linked to a LoyaltyDog program in the dashboard.
-- **Gift card balance not updating** — Verify the gift card belongs to the same program as the Square location.
+- **Sales aren't producing points** — Check that the Square location is linked to a LoyaltyDog program in the dashboard, and that the sale had a customer attached at checkout (otherwise it becomes a QR claim instead of an immediate award).
+- **Customer never got their points from a QR claim** — Claims expire; if the customer scanned the receipt after the expiry window, `GET /v2/square/pos/claim/lookup/{claim_token}` returns `410` and they'll need to contact support instead.
+- **Kiosk can't apply a discount / "terminal device unconfigured"** — The location's checkout mode is set to Terminal API but the kiosk has no Terminal reader paired. Either pair a reader or switch the location to Open ticket mode.
+- **Kiosk checkout is rejected outright** — The location's checkout mode is set to Disabled, or the Square connection is missing a required write scope (reconnect from the dashboard to re-grant it).
+- **Device stopped working after being revoked** — Revocation is immediate and irreversible for the old token; pair the device again with a new one-time code from the dashboard.
 
 <Tip>
   Multiple Square locations can map to the same LoyaltyDog program, or each to its own program — the choice is yours.

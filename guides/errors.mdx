@@ -4,7 +4,9 @@ description: "Public-key error envelope versus today's JWT detail body."
 keywords: ["errors", "request_id", "401", "429"]
 ---
 
-Hashed public keys (`ld_live_` / `ld_test_`) get a stable JSON envelope. JWT App Keys and opaque `legacyToken` keep today's body (`detail`). Changing that JWT shape is a regression (SWE-1181).
+Hashed public keys (`ld_live_` / `ld_test_`) get a stable JSON envelope **at runtime**. JWT App Keys and opaque `legacyToken` keep today's body (`detail`). Changing that JWT shape is a regression (SWE-1181).
+
+The frozen public OpenAPI still describes FastAPI's default error schema (`detail`). Generated clients and the Mintlify playground will not show `{code, message, request_id}` until that envelope is added to the spec. Use this page for the hashed-key runtime contract.
 
 ## Public-key envelope
 
@@ -16,7 +18,7 @@ Hashed public keys (`ld_live_` / `ld_test_`) get a stable JSON envelope. JWT App
 }
 ```
 
-`X-Request-Id` is on every response. Send `X-Request-Id` on the request to echo your own id (1–128 of `A-Za-z0-9._-`).
+`X-Request-Id` is set on responses for hashed-key traffic (runtime; not declared in the public OpenAPI). Send `X-Request-Id` on the request to echo your own id (1–128 of `A-Za-z0-9._-`).
 
 ## Codes
 

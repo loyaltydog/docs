@@ -6,6 +6,8 @@ keywords: ["idempotency", "Idempotency-Key"]
 
 Header: `Idempotency-Key`. TTL **24 hours**. Same key + same body replays the stored response.
 
+Gift-card money-move operations declare this header in the public OpenAPI. Loyalty customer/points writes required for hashed `ld_*` keys are a **runtime** rule and are not yet parameters on those operations in the spec — generated clients and the playground will not send them unless you add the header yourself.
+
 Statuses differ by product:
 
 | Surface | Missing header | Same key, different body |

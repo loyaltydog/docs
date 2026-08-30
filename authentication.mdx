@@ -4,11 +4,13 @@ description: "Bearer JWT App Keys and hashed public keys (ld_live_ / ld_test_)."
 keywords: ["authentication", "bearer", "JWT", "API key", "ld_live_", "ld_test_"]
 ---
 
-The LoyaltyDog API uses **bearer token authentication**. Send the secret on every call:
+Merchant product routes use **bearer token authentication**:
 
 ```http
 Authorization: Bearer <secret>
 ```
+
+Two gift-card **balance-check** routes are public and take no `Authorization` header: `POST /v2/giftcards/customer/balance-check` and `POST /v2/giftcards/programs/{programId}/balance-check`. Everything else in the public schema requires a Bearer secret.
 
 Production base URL: `https://api.loyalty.dog`. Public product routes are under **`/v2`**.
 

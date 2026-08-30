@@ -19,7 +19,7 @@ Public product routes are under **`/v2`**. Partner curl should hit `/v2`, not `/
 
 ## Authentication
 
-Every request requires a bearer secret. See [Authentication](/authentication).
+Merchant product routes require a bearer secret. Gift-card balance-check is public (no `Authorization`). See [Authentication](/authentication).
 
 ```http
 Authorization: Bearer YOUR_API_TOKEN

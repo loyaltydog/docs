@@ -14,6 +14,24 @@
     "dark": "/logo/logofull.png",
     "href": "https://loyalty.dog"
   },
+  "api": {
+    "openapi": "openapi.public.json",
+    "playground": {
+      "display": "interactive",
+      "proxy": true
+    },
+    "examples": {
+      "languages": ["bash", "javascript", "python"],
+      "defaults": "required",
+      "autogenerate": true
+    },
+    "mdx": {
+      "server": "https://api.loyalty.dog",
+      "auth": {
+        "method": "bearer"
+      }
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -52,6 +70,10 @@
             "group": "Guides",
             "pages": [
               "guides/webhooks",
+              "guides/errors",
+              "guides/rate-limits",
+              "guides/idempotency",
+              "guides/test-mode",
               "guides/wallet-passes",
               "guides/reporting"
             ]
@@ -61,7 +83,8 @@
             "pages": [
               "resources/changelog",
               "resources/support",
-              "resources/status"
+              "resources/status",
+              "resources/openapi"
             ]
           }
         ]
@@ -69,7 +92,7 @@
       {
         "tab": "API reference",
         "openapi": {
-          "source": "https://api.loyalty.dog/openapi.json",
+          "source": "openapi.public.json",
           "directory": "api-reference"
         }
       }
@@ -108,13 +131,14 @@
     "primary": {
       "type": "button",
       "label": "Get an API key",
-      "href": "https://loyalty.dog/contact-us"
+      "href": "https://app.loyalty.dog/account/appkeys"
     }
   },
   "contextual": {
     "options": [
       "copy",
       "view",
+      "download-spec",
       "chatgpt",
       "claude",
       "perplexity",
@@ -142,6 +166,7 @@
         "header": "Developers",
         "items": [
           { "label": "API reference", "href": "/api-reference" },
+          { "label": "OpenAPI spec", "href": "/resources/openapi" },
           { "label": "MCP server", "href": "/mcp/overview" },
           { "label": "Status", "href": "https://status.loyalty.dog" }
         ]

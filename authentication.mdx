@@ -1,38 +1,49 @@
 ---
 title: "Authentication"
-description: "How to authenticate against the LoyaltyDog API with bearer tokens and app keys."
+description: "Bearer JWT App Keys and hashed public keys (ld_live_ / ld_test_)."
+keywords: ["authentication", "bearer", "JWT", "API key", "ld_live_", "ld_test_"]
 ---
 
-The LoyaltyDog API uses **bearer token authentication**. Every request must include an `Authorization` header containing a valid token.
+The LoyaltyDog API uses **bearer token authentication**. Send the secret on every call:
 
 ```http
-Authorization: Bearer YOUR_API_TOKEN
+Authorization: Bearer <secret>
 ```
 
-## Token types
+Production base URL: `https://api.loyalty.dog`. Public product routes are under **`/v2`**.
 
-LoyaltyDog issues two token shapes:
+The machine-readable public schema is [`openapi.public.json`](/openapi.public.json) (SWE-1133). `/openapi.json` is the **full** app schema (login, MFA, App Keys, signup) and is not the public product.
 
-| Token | Use case | How to obtain |
-| ----- | -------- | -------------- |
-| **Merchant token** | First-party access to a merchant's own programs, customers, and gift cards | [Contact us](https://loyalty.dog/contact-us) to provision |
-| **App key** | Third-party apps acting on behalf of a merchant | `POST /v2/appkeys` (see the [API reference](/api-reference)) |
+## Two credential kinds
 
-## Multi-tenancy
+| Kind | Shape | How you get it | Limits / freeze |
+| --- | --- | --- | --- |
+| JWT App Key | `eyJ…` three-part JWT | Dashboard [App Keys](https://app.loyalty.dog/account/appkeys). `POST /appkeys` still mints this. | Today's 401/403/429 bodies. **Not** in the hashed-key limiter. **Never** frozen for API Access cancel. |
+| Hashed public key | `ld_test_…` / `ld_live_…` | **Not self-serve.** Do not POST `/appkeys` expecting `ld_*`. | Envelope errors. Per-key 429 + monthly quota. Frozen with 402 `api_subscription_inactive` if API Access is canceled. |
 
-All resources are scoped to a `programId`. Tokens are bound to a merchant; the API rejects any request that targets a program your token does not own. This program-based isolation is enforced server-side — there is no client-side filtering to bypass.
+There is no public issuance API. Dashboard create/rotate/revoke are not on the public OpenAPI.
 
-## MFA on user logins
+<Warning>
+  Changing a JWT App Key or opaque `legacyToken` 401/403/429 body is a regression (SWE-1181). Hashed `ld_*` keys use a separate envelope.
+</Warning>
 
-End-user authentication (for example, merchant staff signing into the dashboard) supports TOTP-based MFA via the `/v2/token/mfa/*` endpoints. Programmatic API access uses tokens directly and does not require MFA.
+## Scopes (`ld_*` only)
+
+JWT App Keys have implicit merchant access. A hashed key is least-privilege (default: no scopes). Typical public reads need `loyalty:read`. Gift-card redeem needs `giftcards:redeem` — `fullAccess` on a public key does **not** grant it.
+
+Missing scope → **403** with `code: forbidden` naming the missing scope.
+
+## Identity ping
+
+`GET /v2/token` with a valid Bearer returns the caller. Unscoped `ld_*` keys can ping identity; product routes still need scopes.
 
 ## Rotating tokens
 
-Treat tokens like passwords. To rotate:
+Treat tokens like passwords.
 
-1. Issue a new token (via the dashboard or `POST /v2/appkeys`).
-2. Deploy the new token to your services.
-3. Revoke the old token.
+1. Create a new App Key in the dashboard.
+2. Deploy the new secret to your services.
+3. Revoke the old key.
 
 <Tip>
   Use a secrets manager — AWS Secrets Manager, GCP Secret Manager, HashiCorp Vault, Infisical, or your platform's equivalent — and never bake tokens into images or commit them.
@@ -41,10 +52,11 @@ Treat tokens like passwords. To rotate:
 ## Common errors
 
 | Status | Meaning | Fix |
-| ------ | ------- | --- |
-| `401 Unauthorized` | Missing or invalid token | Check the `Authorization` header and token validity |
-| `403 Forbidden` | Token does not own the target resource | Verify the `programId` matches your merchant |
-| `429 Too Many Requests` | Rate limit exceeded | Back off; respect the `Retry-After` header |
+| --- | --- | --- |
+| `401` | Missing or invalid token | Check the `Authorization` header |
+| `403` | Missing scope or IP allowlist miss | See [Errors](/guides/errors) |
+| `402` | API Access canceled (`ld_*` only) | Resume the subscription |
+| `429` | Rate-limited | Honor `Retry-After`. See [Rate limits](/guides/rate-limits) |
 
 ## Next steps
 
@@ -52,7 +64,7 @@ Treat tokens like passwords. To rotate:
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Walk through your first authenticated request.
   </Card>
-  <Card title="API reference" icon="code" href="/api-reference">
-    Browse every endpoint and schema.
+  <Card title="API playground" icon="code" href="/api-reference">
+    Try endpoints in Mintlify from the public OpenAPI.
   </Card>
 </CardGroup>

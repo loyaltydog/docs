@@ -1,0 +1,23 @@
+---
+title: "Idempotency"
+description: "Idempotency-Key on gift-card money moves and public loyalty writes."
+keywords: ["idempotency", "Idempotency-Key"]
+---
+
+Header: `Idempotency-Key`. TTL **24 hours**. Same key + same body replays the stored response.
+
+Statuses differ by product:
+
+| Surface | Missing header | Same key, different body |
+| --- | --- | --- |
+| Gift-card money moves (activate / redeem / reload / transfer / consolidate) | **422** (`detail` mentions `idempotency-key`) | **422** (`detail` mentions different request payload) |
+| Loyalty customer create/update and points writes (`ld_*` only) | **400** `bad_request` | **409** `conflict` |
+
+## Who must send it
+
+| Credential | Gift-card money moves | Loyalty customer create/update and points writes |
+| --- | --- | --- |
+| `ld_live_` / `ld_test_` | Required | Required |
+| JWT App Key / `legacyToken` | Required (unchanged gift-card rule) | **Optional** — today's behavior (SWE-1181) |
+
+Use a UUID v4 per distinct operation. Retries of the same operation must reuse the same key.

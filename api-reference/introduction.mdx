@@ -1,52 +1,34 @@
 ---
 title: "API reference"
-description: "The LoyaltyDog REST API, generated live from our OpenAPI spec."
+description: "The LoyaltyDog public REST API, generated from the frozen public OpenAPI."
 ---
 
-The pages under this tab are generated automatically from [`https://api.loyalty.dog/openapi.json`](https://api.loyalty.dog/openapi.json). Whatever ships in production is what you see here.
+The pages under this tab are generated from the **public** OpenAPI snapshot [`openapi.public.json`](/openapi.public.json) (SWE-1133). That is the merchant-product surface.
+
+Do **not** treat [`/openapi.json`](https://api.loyalty.dog/openapi.json) as the public product. That file is the full app schema (login, MFA, App Keys, admin) used by the dashboard client.
+
+Use the Mintlify playground on each endpoint to send requests. Page menu → **Download API spec** for the OpenAPI file.
 
 ## Base URL
 
 ```
-https://api.loyalty.dog/api/v2
+https://api.loyalty.dog
 ```
+
+Public product routes are under **`/v2`**. Partner curl should hit `/v2`, not `/api/v2`.
 
 ## Authentication
 
-Every request requires a bearer token. See [Authentication](/authentication) for details.
+Merchant product routes require a bearer secret. Gift-card balance-check is public (no `Authorization`). See [Authentication](/authentication).
 
 ```http
 Authorization: Bearer YOUR_API_TOKEN
 ```
 
-## Versioning
-
-The API is versioned in the path (`/api/v2`). Breaking changes go to a new version; non-breaking additions land in place. Material changes are listed in the [Changelog](/resources/changelog).
-
 ## Rate limits
 
-The API enforces per-token rate limits. When you exceed the limit, you'll receive a `429 Too Many Requests` response with a `Retry-After` header — back off and retry after the indicated interval.
+Hashed public keys (`ld_*`) are limited per key. JWT App Keys are **not** in that limiter. See [Rate limits](/guides/rate-limits).
 
 ## Errors
 
-Errors follow a consistent shape:
-
-```json
-{
-  "error": {
-    "code": "string",
-    "message": "human-readable description",
-    "details": { }
-  }
-}
-```
-
-| Status | Meaning |
-| ------ | ------- |
-| `400` | Malformed request or invalid payload |
-| `401` | Missing or invalid token |
-| `403` | Token does not own the target resource |
-| `404` | Resource does not exist |
-| `409` | Conflicting state (e.g., duplicate creation) |
-| `429` | Rate-limited |
-| `5xx` | Server error — retry with backoff |
+Hashed `ld_*` keys use `{code, message, request_id}`. JWT App Keys keep today's `detail` body. See [Errors](/guides/errors).

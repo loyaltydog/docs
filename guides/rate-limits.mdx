@@ -1,0 +1,19 @@
+---
+title: "Rate limits"
+description: "Per-key burst, sustained, and monthly caps for hashed public keys."
+keywords: ["rate limit", "429", "quota"]
+---
+
+Hashed public keys are limited **per key**, not per IP. JWT App Keys are **not** in this limiter (SWE-1181).
+
+| Window | Default | 429 `code` |
+| --- | --- | --- |
+| Burst | 60 / 60s | `rate_limited` |
+| Sustained | 1,000 / 3,600s | `rate_limited` |
+| Monthly | 10,000 / UTC month | `monthly_quota_exceeded` |
+
+Headers on `ld_*` responses: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`. `Retry-After` on 429 only. `Remaining` is `0` on every 429. Do not infer the wait from `Limit` — a sustained 429 still advertises the burst cap on `Limit`.
+
+Gen-1 does **not** bill overage. Hitting the monthly cap is a hard 429 until UTC month rollover.
+
+Cloudflare also applies an edge ceiling on `api.loyalty.dog` (300 requests / 10s / IP) for flood protection. Dashboard and POS browser origins skip that ceiling. Server-to-server JWT traffic without an `Origin` header counts toward it.

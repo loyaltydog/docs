@@ -1,0 +1,38 @@
+---
+title: "Errors"
+description: "Public-key error envelope versus today's JWT detail body."
+keywords: ["errors", "request_id", "401", "429"]
+---
+
+Hashed public keys (`ld_live_` / `ld_test_`) get a stable JSON envelope **at runtime**. JWT App Keys and opaque `legacyToken` keep today's body (`detail`). Changing that JWT shape is a regression (SWE-1181).
+
+The frozen public OpenAPI still describes FastAPI's default error schema (`detail`). Generated clients and the Mintlify playground will not show `{code, message, request_id}` until that envelope is added to the spec. Use this page for the hashed-key runtime contract.
+
+## Public-key envelope
+
+```json
+{
+  "code": "unauthorized",
+  "message": "Invalid credentials",
+  "request_id": "…"
+}
+```
+
+`X-Request-Id` is set on responses for hashed-key traffic (runtime; not declared in the public OpenAPI). Send `X-Request-Id` on the request to echo your own id (1–128 of `A-Za-z0-9._-`).
+
+## Codes
+
+| HTTP | `code` | When |
+| --- | --- | --- |
+| 400 | `bad_request` | Missing `Idempotency-Key` on a required **loyalty** public write, or other client error |
+| 401 | `unauthorized` | Bad / revoked / unknown `ld_*` |
+| 402 | `api_subscription_inactive` | Merchant API Access canceled; only `ld_*` |
+| 403 | `forbidden` | Missing scope (message names the scope) or IP allowlist miss |
+| 404 | `not_found` | Resource does not exist |
+| 409 | `conflict` | Loyalty `Idempotency-Key` reused with a different body |
+| 429 | `rate_limited` | Burst or sustained per-key window |
+| 429 | `monthly_quota_exceeded` | UTC-month cap |
+| 422 | `validation_error` | Unprocessable request. Gift-card missing/conflict `Idempotency-Key` is HTTP **422** with `{detail}` — see [Idempotency](/guides/idempotency). |
+| 500 | `internal_error` | Server error |
+
+Honor `Retry-After` on 429. See [Rate limits](/guides/rate-limits).

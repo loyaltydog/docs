@@ -2,8 +2,8 @@
 
 Source for the LoyaltyDog developer docs, published with [Mintlify](https://mintlify.com).
 
-- **Live site:** [loyaltydog.mintlify.app](https://loyaltydog.mintlify.app) (custom domain `docs.loyalty.dog` planned)
-- **API reference source:** generated live from [`https://api.loyalty.dog/openapi.json`](https://api.loyalty.dog/openapi.json) — no manual sync required when the API ships changes
+- **Live site:** [docs.loyalty.dog](https://docs.loyalty.dog)
+- **API reference source:** frozen public snapshot [`openapi.public.json`](./openapi.public.json) (SWE-1133). **Not** `/openapi.json` (full dashboard/admin schema).
 - **Repo:** [`loyaltydog/docs`](https://github.com/loyaltydog/docs)
 
 ## What's documented
@@ -11,7 +11,8 @@ Source for the LoyaltyDog developer docs, published with [Mintlify](https://mint
 | Area | Lives in |
 | ---- | -------- |
 | Introduction, quickstart, authentication | `index.mdx`, `quickstart.mdx`, `authentication.mdx` |
-| Full REST API reference (auto-generated) | `api-reference/` tab in `docs.json` |
+| Public REST API reference (Mintlify playground) | `api-reference/` tab + `openapi.public.json` |
+| Downloadable OpenAPI | [`/openapi.public.json`](./openapi.public.json); page menu → Download API spec |
 | MCP server (Claude, Cursor, Windsurf, Claude Code) | `mcp/` |
 | Platform integrations (Shopify, Square, Clover, Eposnow, Zapier) | `integrations/` |
 | Webhooks, wallet passes, reporting guides | `guides/` |
@@ -33,7 +34,7 @@ The dev server runs at [http://localhost:3000](http://localhost:3000).
 - All content pages are MDX with YAML frontmatter (`title`, `description`).
 - Navigation order lives in `docs.json` under `navigation.tabs`.
 - Branding (colors, logo, favicon) is in `docs.json` under `colors` and `logo`.
-- The API reference is generated automatically from the live OpenAPI spec — no MDX files to maintain for individual endpoints.
+- The API reference is generated from `openapi.public.json`. Refresh that snapshot when public routes change (see [resources/openapi.mdx](./resources/openapi.mdx)). Do not regenerate from `/openapi.json`.
 
 ## Publishing
 
@@ -50,7 +51,7 @@ External contributors can open issues but cannot push directly. To propose a cha
 
 ## Custom domain
 
-The custom domain `docs.loyalty.dog` is configured in the [Mintlify dashboard](https://dashboard.mintlify.com/) under **Settings → Domain**. DNS for `docs.loyalty.dog` is managed in the LoyaltyDog DNS zone and points (`CNAME`) at the Mintlify-provided target.
+The custom domain `docs.loyalty.dog` CNAME is `cname.mintlify.builders`. The Mintlify GitHub App deploys on push to `main`.
 
 ## Support
 

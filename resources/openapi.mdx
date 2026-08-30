@@ -1,0 +1,30 @@
+---
+title: "OpenAPI spec"
+description: "Download the frozen public OpenAPI. Use the Mintlify playground instead of a Postman collection."
+keywords: ["OpenAPI", "download", "playground", "Mintlify"]
+---
+
+The public product schema is a filtered OpenAPI 3.1 document (SWE-1133). It is **not** the full dashboard/admin schema at `/openapi.json`.
+
+## Download
+
+- **This docs site:** [openapi.public.json](/openapi.public.json) — served from this repo. On any API reference page, use the page menu → **Download API spec**.
+- **Live API (once deployed):** `GET https://api.loyalty.dog/openapi.public.json`
+
+Import the JSON into any OpenAPI-aware client. We do **not** ship a Postman collection. The Mintlify [API playground](/api-reference) is the interactive client.
+
+## Keep the docs in sync
+
+The snapshot in this repo is generated from production `/openapi.json` run through the public deny-list in `loyaltydog/core_api` (`filter_public_openapi`). Refresh it when public routes change:
+
+```bash
+curl -sS https://api.loyalty.dog/openapi.json -o /tmp/openapi.full.json
+# Apply core_api backend/loyaltydog_api/core/public_openapi.py
+# Write the result to openapi.public.json and open a PR
+```
+
+When production serves `/openapi.public.json`, you can download that URL directly instead of re-filtering.
+
+## What is excluded
+
+Admin, MFA, password login, signup, and App Key create/rotate/revoke are **not** in the public spec. `POST /appkeys` stays a dashboard JWT mint (SWE-1181).

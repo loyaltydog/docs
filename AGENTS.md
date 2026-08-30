@@ -5,9 +5,9 @@ These instructions apply to AI coding assistants (Claude Code, Cursor, Windsurf,
 ## About this project
 
 - This is the developer documentation site for **LoyaltyDog**, built on [Mintlify](https://mintlify.com).
-- Live at [loyaltydog.mintlify.app](https://loyaltydog.mintlify.app); custom domain `docs.loyalty.dog` planned.
+- Live at [docs.loyalty.dog](https://docs.loyalty.dog) (Mintlify).
 - Content pages are MDX files with YAML frontmatter; configuration lives in `docs.json`.
-- The API reference is auto-generated from `https://api.loyalty.dog/openapi.json` — do not hand-write endpoint pages.
+- The API reference is generated from the **public** snapshot `openapi.public.json` (SWE-1133 deny-list). Do **not** point Mintlify at `/openapi.json` (full dashboard/admin schema). Do not hand-write endpoint pages.
 
 ## MCP servers
 
@@ -23,7 +23,7 @@ These instructions apply to AI coding assistants (Claude Code, Cursor, Windsurf,
 | customer | member, user (in the loyalty context) |
 | merchant | business, store (when referring to the LoyaltyDog account holder) |
 | wallet pass | mobile pass, Apple pass, Google pass (use the generic term unless platform-specific) |
-| API token / bearer token | API key (only use "app key" for the `/v2/appkeys`-issued shape) |
+| API token / bearer token / App Key | Do not document `POST /appkeys` as a public hashed-key issuance API (SWE-1181) |
 
 ## Style preferences
 

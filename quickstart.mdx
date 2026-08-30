@@ -1,76 +1,98 @@
 ---
 title: "Quickstart"
 description: "Make your first authenticated LoyaltyDog API call in under five minutes."
+keywords: ["quickstart", "curl", "API", "bearer"]
 ---
 
-This guide walks you from zero to a working API call against the LoyaltyDog REST API.
+This guide walks you from a dashboard App Key to a working public read.
 
 ## Prerequisites
 
-- A LoyaltyDog merchant account. [Contact us](https://loyalty.dog/contact-us) if you don't have one.
-- An API token (bearer token) for that account.
+- A LoyaltyDog merchant account and a dashboard [App Key](https://app.loyalty.dog/account/appkeys).
 - `curl` or any HTTP client.
+
+Dashboard App Keys today are **JWTs**. Copy the token once. There is **no** public issuance API for hashed `ld_test_` / `ld_live_` secrets. `POST /appkeys` is dashboard-only and **keeps minting JWTs**.
 
 ## 1. Set your credentials
 
-Export your token so the examples below pick it up:
-
 ```bash
-export LOYALTYDOG_API_TOKEN="your_token_here"
-export LOYALTYDOG_API_URL="https://api.loyalty.dog/api/v2"
+export LOYALTYDOG_API_KEY="paste-your-dashboard-jwt-here"
+export LOYALTYDOG_API_URL="https://api.loyalty.dog"
 ```
 
 <Warning>
-  Never commit tokens to source control. Use a secrets manager, environment variables, or your CI/CD provider's secret store.
+  Never commit tokens to source control. Use a secrets manager, environment variables, or your CI secret store.
 </Warning>
 
-## 2. Verify your token
+## 2. List loyalty programs
 
-List the loyalty programs your token has access to:
-
-```bash
-curl -sS "$LOYALTYDOG_API_URL/loyalty/programs" \
-  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
-  -H "Accept: application/json"
-```
-
-A successful call returns a JSON array of program objects scoped to your merchant.
-
-## 3. Create your first customer
-
-Most workflows start with a customer record. Create one in a program you own:
+Public product routes are under **`/v2`**, not `/api/v2`.
 
 ```bash
-curl -sS -X POST "$LOYALTYDOG_API_URL/customers" \
-  -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "programId": "YOUR_PROGRAM_ID",
-    "email": "ada@example.com",
-    "firstName": "Ada",
-    "lastName": "Lovelace"
-  }'
+curl -sS -D - \
+  -H "Authorization: Bearer ${LOYALTYDOG_API_KEY}" \
+  -H "Accept: application/json" \
+  "${LOYALTYDOG_API_URL}/v2/loyalty/programs"
 ```
 
-The response includes the new `customerId`, which you'll use to issue points, gift cards, or wallet passes.
+A successful call returns a JSON array of program objects. An empty list `[]` is success with no programs yet.
 
-## 4. Explore the API
+JWT App Keys have implicit full merchant access. A hashed `ld_*` key needs the `loyalty:read` scope (otherwise 403). Unscoped identity ping: `GET /v2/token`.
+
+### JavaScript (`fetch`)
+
+```javascript
+const API = "https://api.loyalty.dog";
+const key = process.env.LOYALTYDOG_API_KEY;
+
+const res = await fetch(`${API}/v2/loyalty/programs`, {
+  headers: {
+    Authorization: `Bearer ${key}`,
+    Accept: "application/json",
+  },
+});
+
+if (!res.ok) {
+  throw new Error(`${res.status} ${await res.text()}`);
+}
+
+const programs = await res.json();
+console.log(programs);
+```
+
+### Python (`requests`)
+
+```python
+import os
+import requests
+
+API = "https://api.loyalty.dog"
+key = os.environ["LOYALTYDOG_API_KEY"]
+
+res = requests.get(
+    f"{API}/v2/loyalty/programs",
+    headers={"Authorization": f"Bearer {key}", "Accept": "application/json"},
+    timeout=30,
+)
+res.raise_for_status()
+print(res.json())
+```
+
+## 3. Explore the API
+
+Use the [Mintlify API playground](/api-reference) (generated from the public OpenAPI) or [download the spec](/resources/openapi).
 
 <CardGroup cols={2}>
-  <Card title="Full API reference" icon="code" href="/api-reference">
-    Every endpoint, request, and response.
+  <Card title="API reference" icon="code" href="/api-reference">
+    Every public endpoint, request, and response.
   </Card>
   <Card title="Authentication" icon="key" href="/authentication">
-    Bearer tokens, app keys, and rotation.
+    JWT App Keys vs hashed `ld_*` secrets.
   </Card>
-  <Card title="MCP server" icon="robot" href="/mcp/overview">
-    Query the same data from Claude, Cursor, or Windsurf.
+  <Card title="Errors" icon="triangle-exclamation" href="/guides/errors">
+    Envelopes, `request_id`, and status codes.
   </Card>
   <Card title="Webhooks" icon="bell" href="/guides/webhooks">
     React to events in real time.
   </Card>
 </CardGroup>
-
-<Tip>
-  Need help? Email [support@loyalty.dog](mailto:support@loyalty.dog).
-</Tip>

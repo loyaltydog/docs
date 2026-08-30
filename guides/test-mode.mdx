@@ -1,0 +1,17 @@
+---
+title: "Test mode"
+description: "ld_test_ vs ld_live_ and dashboard JWT App Keys."
+keywords: ["test mode", "ld_test_", "sandbox"]
+---
+
+`ld_test_…` vs `ld_live_…` is the public-key split. Dashboard JWT App Keys have no test/live prefix; they are the current merchant credential.
+
+## Today (gen-1 MVP)
+
+- There is **no** self-serve `ld_test_` issuance. `POST /appkeys` mints JWT.
+- `ld_test_` / `ld_live_`, when issued, share the same public routes and the same per-key limiter.
+- Gen-1 does **not** isolate test traffic onto a sandbox dataset. Do not assume a test key cannot touch live wallet or gift-card money until that isolation ships.
+
+## Schema
+
+Use the same [`openapi.public.json`](/openapi.public.json) in test and live. No separate test host is published for the public product.

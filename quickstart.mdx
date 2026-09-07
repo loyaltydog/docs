@@ -4,14 +4,14 @@ description: "Make your first authenticated LoyaltyDog API call in under five mi
 keywords: ["quickstart", "curl", "API", "bearer"]
 ---
 
-This guide walks you from a dashboard App Key to a working public read.
+This guide walks you from a dashboard API Key to a working public read.
 
 ## Prerequisites
 
-- A LoyaltyDog merchant account and a dashboard [App Key](https://app.loyalty.dog/account/appkeys).
+- A LoyaltyDog merchant account and a dashboard [API Key](https://app.loyalty.dog/account/appkeys).
 - `curl` or any HTTP client.
 
-Dashboard App Keys today are **JWTs**. Copy the token once. There is **no** public issuance API for hashed `ld_test_` / `ld_live_` secrets. `POST /appkeys` is dashboard-only and **keeps minting JWTs**.
+Dashboard **API Keys** today are **JWTs** (the page was renamed from App Keys). Copy the token once. There is **no** public issuance API for hashed `ld_test_` / `ld_live_` secrets. `POST /appkeys` is dashboard-only and **keeps minting JWTs**.
 
 ## 1. Set your credentials
 

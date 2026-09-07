@@ -14,16 +14,18 @@ Two gift-card **balance-check** routes are public and take no `Authorization` he
 
 Production base URL: `https://api.loyalty.dog`. Public product routes are under **`/v2`**.
 
-The machine-readable public schema is [`openapi.public.json`](/openapi.public.json) (SWE-1133). `/openapi.json` is the **full** app schema (login, MFA, App Keys, signup) and is not the public product.
+The machine-readable public schema is [`openapi.public.json`](/openapi.public.json) (SWE-1133). `/openapi.json` is the **full** app schema (login, MFA, API Keys, signup) and is not the public product.
 
 ## Two credential kinds
 
 | Kind | Shape | How you get it | Limits / freeze |
 | --- | --- | --- | --- |
-| JWT App Key | `eyJ…` three-part JWT | Dashboard [App Keys](https://app.loyalty.dog/account/appkeys). `POST /appkeys` still mints this. | Today's 401/403/429 bodies. **Not** in the hashed-key limiter. **Never** frozen for API Access cancel. |
+| JWT App Key | `eyJ…` three-part JWT | Dashboard [API Keys](https://app.loyalty.dog/account/appkeys). `POST /appkeys` still mints this. | Today's 401/403/429 bodies. **Not** in the hashed-key limiter. **Never** frozen for API Access cancel. |
 | Hashed public key | `ld_test_…` / `ld_live_…` | **Not self-serve.** Do not POST `/appkeys` expecting `ld_*`. | Envelope errors. Per-key 429 + monthly quota. Frozen with 402 `api_subscription_inactive` if API Access is canceled. |
 
 There is no public issuance API. Dashboard create/rotate/revoke are not on the public OpenAPI.
+
+Merchants subscribe to **API Access** from the same [API Keys](https://app.loyalty.dog/account/appkeys) page (Stripe Checkout / Customer Portal). That plan **does not change JWT or `legacyToken` behavior**. Freeze and metering apply only to hashed `ld_*` keys.
 
 <Warning>
   Changing a JWT App Key or opaque `legacyToken` 401/403/429 body is a regression (SWE-1181). Hashed `ld_*` keys use a separate envelope.
@@ -43,7 +45,7 @@ Missing scope → **403** with `code: forbidden` naming the missing scope.
 
 Treat tokens like passwords.
 
-1. Create a new App Key in the dashboard.
+1. Create a new API Key in the dashboard.
 2. Deploy the new secret to your services.
 3. Revoke the old key.
 

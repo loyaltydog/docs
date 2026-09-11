@@ -17,3 +17,7 @@ Headers on `ld_*` responses: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-Ra
 Gen-1 does **not** bill overage. Hitting the monthly cap is a hard 429 until UTC month rollover.
 
 Cloudflare also applies an edge ceiling on `api.loyalty.dog` (300 requests / 10s / IP) for flood protection. Dashboard and POS browser origins skip that ceiling. Server-to-server JWT traffic without an `Origin` header counts toward it.
+
+## Watching your usage without writing code
+
+The **API Keys** page in your [dashboard](https://app.loyalty.dog/account/appkeys) shows a live quota card for each hashed key: requests used this month against your quota, error and average-latency totals for the last 30 days, and a CSV export of the underlying time series. A banner appears at 80% and 100% of your monthly quota, and you'll get an email at each of those thresholds too. This view is dashboard-only — it isn't part of the public API.

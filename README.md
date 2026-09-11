@@ -31,6 +31,7 @@ The dev server runs at [http://localhost:3000](http://localhost:3000).
 
 ## Editing content
 
+- `authentication.mdx` and `guides/errors.mdx`, `guides/idempotency.mdx`, `guides/rate-limits.mdx`, `guides/test-mode.mdx` track content owned by `loyaltydog/core_api`'s `docs/public-api/` markdown (auth, errors, idempotency, rate-limits, test-mode). **There is no automatic sync between the two repos** — when that source changes, copy the update here and open a Mintlify deploy PR (SWE-1199).
 - All content pages are MDX with YAML frontmatter (`title`, `description`).
 - Navigation order lives in `docs.json` under `navigation.tabs`.
 - Branding (colors, logo, favicon) is in `docs.json` under `colors` and `logo`.

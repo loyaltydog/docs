@@ -11,6 +11,7 @@ Source for the LoyaltyDog developer docs, published with [Mintlify](https://mint
 | Area | Lives in |
 | ---- | -------- |
 | Introduction, quickstart, authentication | `index.mdx`, `quickstart.mdx`, `authentication.mdx` |
+| Compatibility, errors, rate limits, idempotency, test mode | `compatibility.mdx`, `errors.mdx`, `rate-limits.mdx`, `idempotency.mdx`, `test-mode.mdx` |
 | Full REST API reference (auto-generated) | `api-reference/` tab in `docs.json` |
 | MCP server (Claude, Cursor, Windsurf, Claude Code) | `mcp/` |
 | Platform integrations (Shopify, Square, Clover, Eposnow, Zapier) | `integrations/` |
@@ -30,6 +31,7 @@ The dev server runs at [http://localhost:3000](http://localhost:3000).
 
 ## Editing content
 
+- The compatibility/errors/rate-limits/idempotency/test-mode pages are adapted from `loyaltydog/core_api`'s `docs/public-api/` markdown. Edit the source there, then copy the changes here and open a Mintlify deploy PR — **there is no automatic sync between the two repos** (SWE-1199).
 - All content pages are MDX with YAML frontmatter (`title`, `description`).
 - Navigation order lives in `docs.json` under `navigation.tabs`.
 - Branding (colors, logo, favicon) is in `docs.json` under `colors` and `logo`.

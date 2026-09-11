@@ -1,6 +1,6 @@
 ---
 title: "Authentication"
-description: "How to authenticate against the LoyaltyDog API with bearer tokens and app keys."
+description: "How to authenticate against the LoyaltyDog API with bearer tokens and API keys."
 ---
 
 The LoyaltyDog API uses **bearer token authentication**. Every request must include an `Authorization` header containing a valid token.
@@ -16,7 +16,7 @@ LoyaltyDog issues two token shapes:
 | Token | Use case | How to obtain |
 | ----- | -------- | -------------- |
 | **Merchant token** | First-party access to a merchant's own programs, customers, and gift cards | [Contact us](https://loyalty.dog/contact-us) to provision |
-| **App key** | Third-party apps acting on behalf of a merchant | `POST /v2/appkeys` (see the [API reference](/api-reference)) |
+| **API key** | Third-party apps acting on behalf of a merchant | `POST /v2/appkeys` (see the [API reference](/api-reference)) |
 
 ## Multi-tenancy
 
@@ -54,5 +54,11 @@ Treat tokens like passwords. To rotate:
   </Card>
   <Card title="API reference" icon="code" href="/api-reference">
     Browse every endpoint and schema.
+  </Card>
+  <Card title="Compatibility" icon="code-compare" href="/compatibility">
+    What changes (and what doesn't) with a hashed public key.
+  </Card>
+  <Card title="Rate limits" icon="gauge" href="/rate-limits">
+    Burst, sustained, and monthly limits.
   </Card>
 </CardGroup>

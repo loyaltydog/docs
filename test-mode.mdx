@@ -1,0 +1,23 @@
+---
+title: "Test mode"
+description: "ld_test_ vs ld_live_ hashed keys, and what test mode does and doesn't isolate today."
+---
+
+Hashed public keys come in two flavors, distinguished by prefix: `ld_test_…` and `ld_live_…`. API keys (JWTs) have no test/live split — they're the credential most merchants use today, and behave the same regardless of environment.
+
+## Today
+
+- There is no self-serve way to issue an `ld_test_` key yet. `POST /v2/appkeys` mints an API key (JWT).
+- Once issued, `ld_test_` and `ld_live_` keys share the same public routes and the same per-key rate limiter described in [Rate limits](/rate-limits).
+
+<Warning>
+  Test mode does not currently isolate traffic onto a separate sandbox dataset. Don't assume a test key is prevented from touching live wallet or gift-card balances — treat any hashed key with the same care as a live credential until sandbox isolation ships.
+</Warning>
+
+## Schema
+
+Both test and live traffic use the same [public OpenAPI schema](https://api.loyalty.dog/openapi.public.json). There is no separate test host for the public product.
+
+## Billing test mode is different
+
+If you subscribed to API Access through Stripe Checkout, that checkout may itself be running in Stripe test mode until the live pricing cutover completes. That's a billing-account detail, unrelated to the `ld_test_` / `ld_live_` API key split described above.

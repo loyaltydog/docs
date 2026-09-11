@@ -1,0 +1,28 @@
+---
+title: "Idempotency"
+description: "Use Idempotency-Key to safely retry writes without duplicating them."
+---
+
+Send an `Idempotency-Key` header on writes that must not be duplicated by a retry. The key is stored for **24 hours**; sending the same key with the same request body replays the original stored response instead of repeating the operation.
+
+<Tip>
+  Generate a new UUID v4 per distinct operation. If you retry the *same* operation (say, after a timeout), reuse the *same* key — that's what makes the retry safe.
+</Tip>
+
+## Behavior by surface
+
+The exact status codes differ depending on what you're calling:
+
+| Surface | Missing header | Same key, different body |
+| ------- | -------------- | ------------------------- |
+| Gift-card money moves (activate, redeem, reload, transfer, consolidate) | `422` (`detail` mentions `idempotency-key`) | `422` (`detail` mentions a different request payload) |
+| Loyalty customer create/update and points writes (hashed keys only) | `400` `bad_request` | `409` `conflict` |
+
+## Who must send it
+
+| Credential | Gift-card money moves | Loyalty customer create/update and points writes |
+| ---------- | ---------------------- | -------------------------------------------------- |
+| Hashed public key (`ld_live_` / `ld_test_`) | Required | Required |
+| API key (JWT) or legacy opaque token | Required — same gift-card rule as above | Optional — today's behavior |
+
+Gift-card money moves always require `Idempotency-Key`, regardless of credential type — that rule doesn't change based on how you authenticate.

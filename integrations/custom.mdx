@@ -43,7 +43,7 @@ curl -sS -X POST "$LOYALTYDOG_API_URL/loyalty/programs/prog_123/transactions" \
 - **Make calls idempotent.** Use your own order or transaction ID in the `reference` field so retries don't double-credit.
 - **Handle 429s gracefully.** Back off when you see rate-limit responses and respect the `Retry-After` header.
 - **Subscribe to webhooks.** Don't poll for state changes — let LoyaltyDog notify you. See [Webhooks](/guides/webhooks).
-- **Scope tokens per integration.** Use a dedicated app key for each integration so you can rotate or revoke without impacting other systems.
+- **Scope tokens per integration.** Use a dedicated API key for each integration so you can rotate or revoke without impacting other systems.
 
 ## Reference
 
@@ -52,7 +52,7 @@ curl -sS -X POST "$LOYALTYDOG_API_URL/loyalty/programs/prog_123/transactions" \
     Every endpoint, request, and response schema.
   </Card>
   <Card title="Authentication" icon="key" href="/authentication">
-    Bearer tokens, app keys, and rotation.
+    Bearer tokens, API keys, and rotation.
   </Card>
   <Card title="Webhooks" icon="bell" href="/guides/webhooks">
     Real-time event delivery.

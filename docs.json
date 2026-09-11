@@ -28,6 +28,16 @@
             ]
           },
           {
+            "group": "Reference",
+            "pages": [
+              "compatibility",
+              "errors",
+              "rate-limits",
+              "idempotency",
+              "test-mode"
+            ]
+          },
+          {
             "group": "MCP",
             "pages": [
               "mcp/overview",

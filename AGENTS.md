@@ -23,7 +23,7 @@ These instructions apply to AI coding assistants (Claude Code, Cursor, Windsurf,
 | customer | member, user (in the loyalty context) |
 | merchant | business, store (when referring to the LoyaltyDog account holder) |
 | wallet pass | mobile pass, Apple pass, Google pass (use the generic term unless platform-specific) |
-| API token / bearer token | API key (only use "app key" for the `/v2/appkeys`-issued shape) |
+| API key (JWT, issued via the dashboard's **API Keys** page or `POST /v2/appkeys`) | app key, App Key (renamed in the dashboard 2026-09-04, SWE-1196 — this row was stale before then) |
 
 ## Style preferences
 

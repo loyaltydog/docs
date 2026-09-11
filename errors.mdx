@@ -1,0 +1,39 @@
+---
+title: "Errors"
+description: "Error envelope, status codes, and request tracing for the LoyaltyDog API."
+---
+
+Error responses differ slightly by credential type. Hashed public keys (`ld_live_…` / `ld_test_…`) get a stable JSON envelope. API keys (JWTs) and legacy opaque tokens keep today's body shape (`detail`) — that shape does not change.
+
+## Public-key envelope
+
+Requests authenticated with a hashed `ld_*` key that fail return:
+
+```json
+{
+  "code": "unauthorized",
+  "message": "Invalid credentials",
+  "request_id": "…"
+}
+```
+
+Every response carries `X-Request-Id`. Send your own `X-Request-Id` header (1–128 characters, `A-Za-z0-9._-`) to have it echoed back — useful for correlating a support request with a specific call.
+
+## Status codes
+
+| HTTP | `code` | When |
+| ---- | ------ | ---- |
+| 400 | `bad_request` | Missing `Idempotency-Key` on a required loyalty write, or another client error |
+| 401 | `unauthorized` | Bad, revoked, or unknown credential |
+| 402 | `api_subscription_inactive` | API Access subscription canceled (hashed keys only) |
+| 403 | `forbidden` | Missing scope (the message names it) or an IP allowlist miss |
+| 404 | `not_found` | The resource doesn't exist, or isn't yours |
+| 409 | `conflict` | A loyalty `Idempotency-Key` was reused with a different request body |
+| 422 | `validation_error` | Unprocessable request. A missing or conflicting gift-card `Idempotency-Key` also returns 422 — see [Idempotency](/idempotency) |
+| 429 | `rate_limited` | Burst or sustained per-key rate limit |
+| 429 | `monthly_quota_exceeded` | Monthly request quota reached |
+| 500 | `internal_error` | Something went wrong on our end |
+
+<Tip>
+  Always honor the `Retry-After` header on a 429. See [Rate limits](/rate-limits) for the exact windows and headers.
+</Tip>

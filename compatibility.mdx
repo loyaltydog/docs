@@ -1,0 +1,27 @@
+---
+title: "Compatibility"
+description: "What changes (and what doesn't) between API keys and hashed public keys."
+---
+
+LoyaltyDog's API is moving toward hashed public keys (`ld_live_…` / `ld_test_…`) as the long-term credential format. If you're already integrated with an API key (JWT), nothing about your integration changes until you explicitly opt in to a hashed key.
+
+## The short version
+
+| | API key (JWT) | Hashed public key (`ld_*`) |
+| - | -------------- | ---------------------------- |
+| How you get one | [API Keys](https://app.loyalty.dog/account/appkeys) in the dashboard, or `POST /v2/appkeys` | Not self-serve yet |
+| Error shape | Today's `{"detail": "..."}` body | Stable `{code, message, request_id}` envelope — see [Errors](/errors) |
+| Rate limiting | Not in the per-key limiter | Burst / sustained / monthly limits — see [Rate limits](/rate-limits) |
+| Scopes | Implicit full merchant access | Least-privilege by default — you grant scopes explicitly |
+| `Idempotency-Key` on loyalty writes | Optional | Required |
+| If API Access billing lapses | Keeps working | Frozen (`402 api_subscription_inactive`) until you resubscribe |
+
+<Tip>
+  `POST /v2/appkeys` still mints an API key (JWT) today. Issuing hashed `ld_*` keys from that same endpoint is a deliberate future cutover, not something that will happen underneath an existing integration.
+</Tip>
+
+## Why this matters
+
+An API key (JWT) and a hashed public key can call the same routes, but they're held to different rules once you're on a hashed key: real per-key rate limits, a monthly request quota, explicit scopes, and a stable error envelope built for programmatic handling. None of that is retroactively applied to an existing API key.
+
+If your integration already works today, it keeps working exactly as-is. There's nothing to migrate unless you specifically want the hashed-key behavior above.

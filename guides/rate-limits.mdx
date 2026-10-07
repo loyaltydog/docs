@@ -10,7 +10,7 @@ Hashed public keys are limited **per key**, not per IP. JWT App Keys are **not**
 | --- | --- | --- |
 | Burst | 60 / 60s | `rate_limited` |
 | Sustained | 1,000 / 3,600s | `rate_limited` |
-| Monthly | 10,000 / UTC month | `monthly_quota_exceeded` |
+| Monthly | Standard 100,000; Growth 250,000; Scale 600,000 / UTC month | `monthly_quota_exceeded` |
 
 Headers on `ld_*` responses: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`. `Retry-After` on 429 only. `Remaining` is `0` on every 429. Do not infer the wait from `Limit` — a sustained 429 still advertises the burst cap on `Limit`.
 

@@ -3,18 +3,18 @@ title: "MCP overview"
 description: "Query LoyaltyDog from Claude, Cursor, Windsurf, and other Model Context Protocol clients."
 ---
 
-The LoyaltyDog MCP server exposes our REST API as a set of structured tools any [Model Context Protocol](https://modelcontextprotocol.io/) client can call. It's an HTTP wrapper around the LoyaltyDog API — no direct database access — and can be pointed at development, staging, or production.
+The LoyaltyDog MCP server lets you call the LoyaltyDog REST API from any [Model Context Protocol](https://modelcontextprotocol.io/) client. The server is an HTTP wrapper around the API, with no direct database access. It targets the production API by default.
 
 ## What you can do
 
-Once connected, an AI assistant can answer natural-language questions about your loyalty data:
+Once connected, your AI assistant can answer questions about your loyalty data:
 
-- "Show me the top ten loyalty programs by active customers this month."
-- "List gift cards issued in the last 24 hours."
-- "What's the wallet-pass install rate for program XYZ?"
-- "Create a new customer record for ada@example.com in program ABC."
+- "List my loyalty programs."
+- "Find the customer ada@example.com."
+- "List gift cards for program prog_123."
+- "List wallet passes for program prog_123."
 
-The MCP server enforces the same authentication and program-isolation rules as the underlying REST API — it cannot reach data your token does not own.
+The MCP server uses the same authentication and program isolation as the REST API. It returns only data your API key can access.
 
 ## Architecture
 
@@ -24,29 +24,38 @@ The MCP server enforces the same authentication and program-isolation rules as t
 │ (Claude, …)  │         │ (local proc) │          │ api.loyalty.dog  │
 └──────────────┘         └──────────────┘          └──────────────────┘
                               │
-                              └── bearer token from env
+                              └── LOYALTYDOG_API_KEY from env
 ```
 
-The server runs as a local process started by your AI client. Your bearer token never leaves your machine except in outbound calls to the LoyaltyDog API.
+The server runs as a local process started by your AI client. Your API key never leaves your machine except in outbound calls to the LoyaltyDog API.
 
-## Tool surface
+## Tools
 
-The MCP server is **read-only** — it covers listing, getting, and searching the high-traffic parts of the API:
+The server exposes 17 tools.
 
-- **Loyalty programs** — `list_programs`, `get_program`
-- **Customers** — `search_customers`, `get_customer`
+<Warning>
+  Five tools write data. Use an `ld_test_` sandbox key while you experiment, and approve each write call in your client.
+
+  - `issue_gift_card` issues a new gift card with real value. You cannot undo it.
+  - `redeem_gift_card` deducts a real balance. You cannot undo it.
+  - `update_customer` changes customer PII and can overwrite the points balance.
+  - `update_program` changes program-wide settings.
+  - `regenerate_pass` is low risk. It pushes a wallet-pass update.
+</Warning>
+
+- **Programs** — `list_programs`, `get_program`, `update_program` (write)
+- **Customers** — `search_customers`, `get_customer`, `update_customer` (write)
 - **Loyalty transactions** — `get_customer_transactions`
-- **Wallet passes** — `list_passes`, `get_pass`
-- **Gift cards** — `list_gift_cards`, `get_gift_card`, `get_gift_card_transactions`
+- **Wallet passes** — `list_passes`, `get_pass`, `regenerate_pass` (write)
+- **Gift cards** — `list_gift_cards`, `get_gift_card`, `get_gift_card_transactions`, `issue_gift_card` (write), `redeem_gift_card` (write)
+- **Reporting** — `get_gift_card_business_report`
 - **System** — `get_system_health`
-
-There are no create, update, issue, redeem, or reporting tools. For writes — creating or updating customers, issuing or redeeming gift cards, regenerating wallet passes, generating reports, and so on — hit the REST API directly. See the [API reference](/api-reference).
 
 ## Next steps
 
 <CardGroup cols={2}>
   <Card title="Install the server" icon="terminal" href="/mcp/installation">
-    Clone, configure, and run the MCP server locally.
+    Install and configure the MCP server with uvx, pipx, or pip.
   </Card>
   <Card title="Connect a client" icon="plug" href="/mcp/clients">
     Wire up Claude Desktop, Claude Code, Cursor, or Windsurf.

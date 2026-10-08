@@ -1,54 +1,81 @@
 ---
 title: "Install the MCP server"
-description: "Clone, configure, and run the LoyaltyDog MCP server locally."
+description: "Install and configure the LoyaltyDog MCP server with uvx, pipx, or pip."
 ---
 
-The MCP server lives in the `core_api/mcp` directory of the LoyaltyDog core API repository. It's a Python process you start locally via your AI assistant's MCP config.
+Install the `loyaltydog-mcp` package. Your MCP client starts the `loyaltydog-mcp` console script.
 
 ## Prerequisites
 
-- Python 3.11 or later
-- A LoyaltyDog API token ([see Authentication](/authentication))
-- An MCP-capable client: Claude Desktop, Claude Code, Cursor, Windsurf, or any other MCP host
+- Python 3.10 or later.
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (recommended). `pipx` and `pip` also work.
+- A public API key that starts with `ld_live_` or `ld_test_`. Create the key in the LoyaltyDog dashboard. See [plans and sign-up](https://loyaltydog.ai/pricing/).
+- An MCP client such as Claude Desktop, Claude Code, Cursor, or Windsurf.
 
 ## Install
 
-```bash
-git clone https://github.com/loyaltydog/core_api.git
-cd core_api/mcp
-pip install -r requirements.txt
+`uvx` is the recommended way to run the server. It downloads `loyaltydog-mcp` and starts the console script.
+
+<CodeGroup>
+
+```bash uvx
+uvx loyaltydog-mcp
 ```
+
+```bash pipx
+pipx run loyaltydog-mcp
+```
+
+```bash pip
+pip install loyaltydog-mcp
+loyaltydog-mcp
+```
+
+</CodeGroup>
 
 ## Configure
 
-The server reads two environment variables:
+Set these environment variables in your MCP client, or export them in your shell before a manual check.
 
-| Variable | Purpose | Example |
-| -------- | ------- | ------- |
-| `LOYALTYDOG_API_URL` | Base URL for the v2 API (no trailing slash) | `https://api.loyalty.dog/v2` |
-| `LOYALTYDOG_API_TOKEN` | Bearer token for API authentication | `eyJhbGc…` |
+| Variable | Required | Description |
+| --- | --- | --- |
+| `LOYALTYDOG_API_KEY` | Yes | Public API key from the LoyaltyDog dashboard. Starts with `ld_live_` or `ld_test_`. |
+| `LOYALTYDOG_API_URL` | No | API base URL. Defaults to `https://api.loyalty.dog/v2`. |
 
-You can set them inline in your MCP client config (recommended — see the [client setup guide](/mcp/clients)) or via a local `.env`:
+`LOYALTYDOG_API_TOKEN` still works as a legacy alias for `LOYALTYDOG_API_KEY`.
+
+<Note>
+  The server starts without `LOYALTYDOG_API_KEY` and still lists its tools to the client. A tool call without a key returns a clear error.
+</Note>
+
+## Sanity check
+
+Print the version:
 
 ```bash
-cp .env.example .env
-# Edit .env and fill in your values
+LOYALTYDOG_API_KEY=ld_test_your_key_here uvx loyaltydog-mcp --version
 ```
 
-## Sanity-check the server
+Running `uvx loyaltydog-mcp` with no arguments waits for an MCP client on stdin. Press Ctrl+C to quit. `pipx run loyaltydog-mcp` and `loyaltydog-mcp` behave the same way.
 
-You can start the server manually to verify your token works:
+## Upgrade
 
-```bash
-LOYALTYDOG_API_URL="https://api.loyalty.dog/v2" \
-LOYALTYDOG_API_TOKEN="your_token_here" \
-python3 -m server
+<CodeGroup>
+
+```bash uvx
+uvx loyaltydog-mcp@latest
 ```
 
-If the process starts without authentication errors, you're ready to wire it into a client.
+```bash pip
+pip install -U loyaltydog-mcp
+```
+
+</CodeGroup>
+
+`uvx loyaltydog-mcp@latest` resolves the latest release and then starts the server. Press Ctrl+C to quit.
 
 ## Next steps
 
 <Card title="Connect a client" icon="plug" href="/mcp/clients">
-  Step-by-step config for Claude Desktop, Claude Code, Cursor, and Windsurf.
+  Add the server to Claude Desktop, Claude Code, Cursor, Windsurf, or another MCP client.
 </Card>

@@ -5,6 +5,13 @@ description: "Notable changes to the LoyaltyDog API and developer surface."
 
 Material changes to the LoyaltyDog public API and developer surface are listed here. Non-breaking additions land continuously and are visible in the [API reference](/api-reference).
 
+<Update label="2026-10-10" description="Public spec 1.0.2">
+  - The public OpenAPI snapshot is version 1.0.2. It adds `GET /v2/loyalty/programs/{programId}/rules` (point, price, bundle, and deal names) and `GET /v2/giftcards/programs/{programId}/cards/lookup` (balance and status by printed number).
+  - Customer search documents a local phone number matched to the stored E.164 value using the program country.
+  - MCP install is `uvx loyaltydog-mcp` with `LOYALTYDOG_API_KEY`. Package 0.1.0 exposes 17 tools, including five writes. `list_program_rules`, phone search, and `lookup_gift_card_balance` are documented for the next package.
+  - `https://api.loyalty.dog` serves the two new reads when that API release is deployed.
+</Update>
+
 <Update label="2026-05-28" description="Documentation site launched">
   - Replaced the legacy docs.loyalty.dog redirect with this Mintlify-powered site.
   - API reference now generated live from `https://api.loyalty.dog/openapi.json`.

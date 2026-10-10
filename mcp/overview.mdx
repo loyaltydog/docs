@@ -10,9 +10,9 @@ The LoyaltyDog MCP server lets you call the LoyaltyDog REST API from any [Model 
 Once connected, your AI assistant can answer questions about your loyalty data:
 
 - "List my loyalty programs."
-- "Find the customer ada@example.com."
-- "List gift cards for program prog_123."
-- "List wallet passes for program prog_123."
+- "List the bundle rules for program prog_123, name and description only."
+- "Find the customer with this phone number in program prog_123."
+- "What is the balance and status of this printed gift card?"
 
 The MCP server uses the same authentication and program isolation as the REST API. It returns only data your API key can access.
 
@@ -31,7 +31,7 @@ The server runs as a local process started by your AI client. Your API key never
 
 ## Tools
 
-The server exposes 17 tools.
+`loyaltydog-mcp` 0.1.0 exposes 17 tools. The next package release adds `list_program_rules`, a `phone` argument on `search_customers`, and `lookup_gift_card_balance`. The list below is that full set of 19 tools.
 
 <Warning>
   Five tools write data. Use an `ld_test_` sandbox key while you experiment, and approve each write call in your client.
@@ -43,13 +43,23 @@ The server exposes 17 tools.
   - `regenerate_pass` is low risk. It pushes a wallet-pass update.
 </Warning>
 
-- **Programs** — `list_programs`, `get_program`, `update_program` (write)
-- **Customers** — `search_customers`, `get_customer`, `update_customer` (write)
+- **Programs** — `list_programs`, `get_program`, `list_program_rules`, `update_program` (write)
+- **Customers** — `search_customers` (email, name, or phone), `get_customer`, `update_customer` (write)
 - **Loyalty transactions** — `get_customer_transactions`
 - **Wallet passes** — `list_passes`, `get_pass`, `regenerate_pass` (write)
-- **Gift cards** — `list_gift_cards`, `get_gift_card`, `get_gift_card_transactions`, `issue_gift_card` (write), `redeem_gift_card` (write)
+- **Gift cards** — `list_gift_cards`, `get_gift_card`, `lookup_gift_card_balance`, `get_gift_card_transactions`, `issue_gift_card` (write), `redeem_gift_card` (write)
 - **Reporting** — `get_gift_card_business_report`
 - **System** — `get_system_health`
+
+`list_program_rules` takes `program_id` and an optional `rule_type` of `point`, `price`, `bundle`, or `deal`. Bundle rules are the discount rules. It returns id, type, name, description, whether the rule is active, provider, and store ids. It does not return ratios, product targets, or prices. An `ld_*` key needs `loyalty:read`.
+
+`search_customers` matches a local phone number to the stored E.164 value using the program country.
+
+`lookup_gift_card_balance` takes `program_id` and the printed `card_number`. The reply is status and balance only. It does not include the card number, security code, or customer. The match is exact. An `ld_*` key needs `giftcards:read`.
+
+<Note>
+`uvx loyaltydog-mcp` installs 0.1.0 today. That build searches customers by email or name and does not include `list_program_rules` or `lookup_gift_card_balance`. Those tools ship in the next package. The matching REST routes are in public spec 1.0.2. `https://api.loyalty.dog` serves them when that API release is deployed.
+</Note>
 
 ## Next steps
 

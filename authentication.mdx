@@ -33,7 +33,9 @@ Merchants subscribe to **API Access** from the same [API Keys](https://app.loyal
 
 ## Scopes (`ld_*` only)
 
-JWT App Keys have implicit merchant access. A hashed key is least-privilege (default: no scopes). Typical public reads need `loyalty:read`. Gift-card redeem needs `giftcards:redeem` — `fullAccess` on a public key does **not** grant it.
+JWT App Keys have implicit merchant access. A hashed key is least-privilege (default: no scopes). Typical public reads need `loyalty:read`. Listing program rules (`GET /v2/loyalty/programs/{programId}/rules`) needs `loyalty:read`. A printed-number gift-card balance (`GET /v2/giftcards/programs/{programId}/cards/lookup`) needs `giftcards:read`. Gift-card redeem needs `giftcards:redeem` — `fullAccess` on a public key does **not** grant it.
+
+The printed-number lookup accepts a normal bearer token. JWT app keys and legacy tokens do not send Epos Now HMAC headers on that route. Other gift-card routes still require those headers for JWT and legacy tokens. The two public balance-check POSTs above take no bearer token and are a different call.
 
 Missing scope → **403** with `code: forbidden` naming the missing scope.
 

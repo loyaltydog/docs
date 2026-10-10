@@ -42,10 +42,10 @@ Set these environment variables in your MCP client, or export them in your shell
 | `LOYALTYDOG_API_KEY` | Yes | Public API key from the LoyaltyDog dashboard. Starts with `ld_live_` or `ld_test_`. |
 | `LOYALTYDOG_API_URL` | No | API base URL. Defaults to `https://api.loyalty.dog/v2`. |
 
-`LOYALTYDOG_API_TOKEN` still works as a legacy alias for `LOYALTYDOG_API_KEY`.
+`LOYALTYDOG_API_TOKEN` still works as a legacy alias for `LOYALTYDOG_API_KEY`. A JWT app key also authenticates and does not need an API Access subscription. An `ld_*` key does, and each tool still needs its scope.
 
 <Note>
-  The server starts without `LOYALTYDOG_API_KEY` and still lists its tools to the client. A tool call without a key returns a clear error.
+  The server starts without `LOYALTYDOG_API_KEY` and still lists its tools to the client. A tool call without a key returns a clear error. Package 0.1.0 does not include `list_program_rules`, phone search, or `lookup_gift_card_balance`. Those arrive in the next release. See [MCP overview](/mcp/overview).
 </Note>
 
 ## Sanity check

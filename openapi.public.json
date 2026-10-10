@@ -9,7 +9,7 @@
       "url": "https://loyalty.dog/contact-us",
       "email": "support@loyalty.dog"
     },
-    "version": "1.0.1"
+    "version": "1.0.2"
   },
   "servers": [
     {
@@ -2235,13 +2235,111 @@
         }
       }
     },
+    "/v2/loyalty/programs/{programId}/rules": {
+      "get": {
+        "tags": [
+          "Loyalty"
+        ],
+        "summary": "List Loyalty Program Rules",
+        "description": "Read point, price, bundle, and deal rules for a program you own.\n\nReturns name, description, active, provider, and store ids only. Ratios, product targets, and prices are not included. Bundle rules are the discount rules.\n\n**Query parameters**:\n- `type`: optional filter, one of `point`, `price`, `bundle`, `deal`. An unknown value returns 400.\n\n**Scopes**: `ld_*` keys need `loyalty:read`. JWT app keys and legacy tokens are unchanged.\n\n**Status codes**:\n- 200: rule rows for this program\n- 400: `type` is not one of the four values\n- 404: program not found, or it belongs to another merchant",
+        "operationId": "list_loyalty_program_rules_v2_loyalty_programs__programId__rules_get",
+        "parameters": [
+          {
+            "name": "programId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PydanticObjectId"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Programid"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "description": "Return only this rule type.",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "point",
+                    "price",
+                    "bundle",
+                    "deal"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Type"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicRuleRead"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid type filter"
+          },
+          "404": {
+            "description": "Program not found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/loyalty/programs/{programId}/customers": {
       "get": {
         "tags": [
           "Loyalty"
         ],
         "summary": "Get Loyalty Program Customers",
-        "description": "### List Loyalty Program Customers\n\nRetrieves a list of customers associated with a specific loyalty program.\n\n**Path Parameters**:\n- `programId`: UUID of the loyalty program\n\n**Query Parameters**:\n- `phone`: Filter by customer's phone number (optional)\n- `email`: Filter by customer's email (optional)\n- `pid`: Filter by personal identifier (optional)\n- `pidNumber`: Filter by personal identifier number (optional)\n- `includeTotal`: Include total member count in response (default: false)\n\n**Returns**:\n- By default: A list of customer details as JSON objects.\n- If includeTotal=true: An object with `customers` array and `total` count.",
+        "description": "### List Loyalty Program Customers\n\nRetrieves a list of customers associated with a specific loyalty program.\n\n**Path Parameters**:\n- `programId`: UUID of the loyalty program\n\n**Query Parameters**:\n- `phone`: Filter by customer's phone number (optional). A local number is also matched to the stored E.164 value using the program country.\n- `email`: Filter by customer's email (optional)\n- `pid`: Filter by personal identifier (optional)\n- `pidNumber`: Filter by personal identifier number (optional)\n- `includeTotal`: Include total member count in response (default: false)\n\n**Returns**:\n- By default: A list of customer details as JSON objects.\n- If includeTotal=true: An object with `customers` array and `total` count.",
         "operationId": "get_loyalty_program_customers_v2_loyalty_programs__programId__customers_get",
         "parameters": [
           {
@@ -6216,6 +6314,90 @@
                 "schema": {}
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/giftcards/programs/{programId}/cards/lookup": {
+      "get": {
+        "tags": [
+          "Gift Cards"
+        ],
+        "summary": "Look Up Gift Card Balance",
+        "description": "Read one gift card's balance and status by its printed number.\n\nExact match on a gift-card program the caller owns. The response is balance and status only. It does not return the card number, security code, or customer.\n\nA partial number returns 404. Another merchant's program returns 404.\n\nThis route accepts a normal bearer token. JWT app keys and legacy tokens do not need the Epos Now HMAC headers here. Other gift-card routes still require those headers for JWT and legacy tokens.\n\n**Query parameters**:\n- `number`: printed card number, required, exact match, at most 20 characters.\n\n**Scopes**: `ld_*` keys need `giftcards:read`.\n\n**Status codes**:\n- 200: balance and status\n- 400: `number` is missing\n- 404: card or program not found",
+        "operationId": "lookup_gift_card_balance_v2_giftcards_programs__programId__cards_lookup_get",
+        "parameters": [
+          {
+            "name": "programId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PydanticObjectId"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Programid"
+            }
+          },
+          {
+            "name": "number",
+            "in": "query",
+            "required": true,
+            "description": "Printed card number. Exact match.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20,
+              "title": "Number"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicGiftCardBalance"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Card number is missing"
+          },
+          "404": {
+            "description": "Gift card not found"
           },
           "422": {
             "description": "Validation Error",
@@ -22884,6 +23066,116 @@
           "card"
         ],
         "title": "GiftCardResponse"
+      },
+      "PublicRuleStore": {
+        "type": "object",
+        "properties": {
+          "shopId": {
+            "type": "string",
+            "title": "Shopid"
+          },
+          "locationId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locationid"
+          }
+        },
+        "required": [
+          "shopId"
+        ],
+        "title": "PublicRuleStore"
+      },
+      "PublicRuleRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "point",
+              "price",
+              "bundle",
+              "deal"
+            ],
+            "title": "Type"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "stores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRuleStore"
+            },
+            "title": "Stores"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "active",
+          "provider"
+        ],
+        "title": "PublicRuleRead",
+        "description": "Public catalog row. Names and store ids only. No ratios or product targets."
+      },
+      "PublicGiftCardBalance": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "string",
+            "title": "Balance",
+            "description": "Decimal string with two places, for example 25.50.",
+            "examples": [
+              "25.50"
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/GiftCardStatus"
+          }
+        },
+        "required": [
+          "balance",
+          "status"
+        ],
+        "title": "PublicGiftCardBalance",
+        "description": "Printed-number lookup. Balance and status only."
       },
       "GiftCardStatus": {
         "type": "string",

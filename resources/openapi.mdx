@@ -6,6 +6,8 @@ keywords: ["OpenAPI", "download", "playground", "Mintlify"]
 
 The public product schema is a filtered OpenAPI 3.1 document (SWE-1133). It is **not** the full dashboard/admin schema at `/openapi.json`.
 
+Version 1.0.2 of the snapshot in this repo adds `GET /v2/loyalty/programs/{programId}/rules` and `GET /v2/giftcards/programs/{programId}/cards/lookup`. A refresh from production drops those two operations until the API release that serves them is deployed. Keep both operations when you refresh.
+
 ## Download
 
 - **This docs site:** [openapi.public.json](/openapi.public.json) — served from this repo. On any API reference page, use the page menu → **Download API spec**.

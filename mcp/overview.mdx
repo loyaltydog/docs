@@ -1,20 +1,20 @@
 ---
 title: "MCP overview"
-description: "Query LoyaltyDog from Claude, Cursor, Windsurf, and other Model Context Protocol clients."
+description: "Query and update LoyaltyDog from Claude, Cursor, Windsurf, and other Model Context Protocol clients."
 ---
 
-The LoyaltyDog MCP server exposes our REST API as a set of structured tools any [Model Context Protocol](https://modelcontextprotocol.io/) client can call. It's an HTTP wrapper around the LoyaltyDog API — no direct database access — and can be pointed at development, staging, or production.
+The LoyaltyDog MCP server exposes the public REST API as tools any [Model Context Protocol](https://modelcontextprotocol.io/) client can call. It is an HTTP client of the LoyaltyDog API. It does not open a database connection. Point `LOYALTYDOG_API_URL` at production, staging, or a local API.
 
 ## What you can do
 
-Once connected, an AI assistant can answer natural-language questions about your loyalty data:
+Once connected, an assistant can ask about data your token owns and, when you approve a write, change that data:
 
-- "Show me the top ten loyalty programs by active customers this month."
-- "List gift cards issued in the last 24 hours."
-- "What's the wallet-pass install rate for program XYZ?"
-- "Create a new customer record for ada@example.com in program ABC."
+- "List the bundle rules for program ABC, name and description only."
+- "Find the customer with this phone number in program ABC."
+- "What is the balance and status of this printed gift card?"
+- "List gift cards with a positive balance in program ABC."
 
-The MCP server enforces the same authentication and program-isolation rules as the underlying REST API — it cannot reach data your token does not own.
+Every tool sends your bearer token. The API applies the same authentication, scopes, and program ownership as a direct REST call.
 
 ## Architecture
 
@@ -27,26 +27,47 @@ The MCP server enforces the same authentication and program-isolation rules as t
                               └── bearer token from env
 ```
 
-The server runs as a local process started by your AI client. Your bearer token never leaves your machine except in outbound calls to the LoyaltyDog API.
+Your AI client starts the server as a local process. The bearer token leaves your machine only on calls to the LoyaltyDog API.
 
 ## Tool surface
 
-The MCP server is **read-only** — it covers listing, getting, and searching the high-traffic parts of the API:
+`loyaltydog-mcp` 0.1.0 on PyPI exposes 17 tools, including five writes. The next package release adds `list_program_rules`, a `phone` argument on `search_customers`, and `lookup_gift_card_balance`. The list below is that full set of 19 tools.
 
-- **Loyalty programs** — `list_programs`, `get_program`
-- **Customers** — `search_customers`, `get_customer`
-- **Loyalty transactions** — `get_customer_transactions`
+### Read
+
+- **Programs** — `list_programs`, `get_program`, `list_program_rules`
+- **Customers** — `search_customers`, `get_customer`, `get_customer_transactions`
 - **Wallet passes** — `list_passes`, `get_pass`
-- **Gift cards** — `list_gift_cards`, `get_gift_card`, `get_gift_card_transactions`
+- **Gift cards** — `list_gift_cards`, `get_gift_card`, `lookup_gift_card_balance`, `get_gift_card_transactions`, `get_gift_card_business_report`
 - **System** — `get_system_health`
 
-There are no create, update, issue, redeem, or reporting tools. For writes — creating or updating customers, issuing or redeeming gift cards, regenerating wallet passes, generating reports, and so on — hit the REST API directly. See the [API reference](/api-reference).
+`list_program_rules` takes `program_id` and an optional `rule_type` of `point`, `price`, `bundle`, or `deal`. Bundle rules are the discount rules. The tool returns id, type, name, description, whether the rule is active, provider, and store ids. It does not return ratios, product targets, or prices. An `ld_*` key needs `loyalty:read`.
+
+`search_customers` takes `program_id` and at least one of `email`, `name`, or `phone`. A local phone number is matched to the stored E.164 value using the program country.
+
+`lookup_gift_card_balance` takes `program_id` and the printed `card_number`. The reply is status and balance only. It does not include the card number, security code, or customer. The match is exact. An `ld_*` key needs `giftcards:read`.
+
+### Writes
+
+Five tools change data. There is no undo inside the server. Approve each call in your client. Use an `ld_test_` key while you try them.
+
+- `issue_gift_card` issues a card. It needs `program_id`, `merchant_id`, and `initial_value` from 0.01 to 10000.
+- `redeem_gift_card` spends value. It needs `program_id`, `card_id`, and `amount` of at least 0.01.
+- `update_customer` updates a customer. If you set `points`, that value replaces the current balance.
+- `update_program` updates settings that apply to every customer in the program.
+- `regenerate_pass` asks a wallet pass to refresh. It does not change balances, points, or customer data.
+
+Amounts have no default. The server rejects a non-positive amount before it calls the API.
+
+<Note>
+`uvx loyaltydog-mcp` installs 0.1.0 today. That build searches customers by email or name and does not include `list_program_rules` or `lookup_gift_card_balance`. Those tools ship in the next package. The matching REST routes are in public spec 1.0.2. `https://api.loyalty.dog` serves them when that API release is deployed.
+</Note>
 
 ## Next steps
 
 <CardGroup cols={2}>
   <Card title="Install the server" icon="terminal" href="/mcp/installation">
-    Clone, configure, and run the MCP server locally.
+    Run the MCP server with uvx, pipx, or pip.
   </Card>
   <Card title="Connect a client" icon="plug" href="/mcp/clients">
     Wire up Claude Desktop, Claude Code, Cursor, or Windsurf.

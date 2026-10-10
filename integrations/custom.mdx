@@ -9,9 +9,9 @@ If LoyaltyDog doesn't yet have a first-party integration for your platform, you 
 
 A typical integration does three things:
 
-1. **Identify the customer.** Look up or create a LoyaltyDog customer by email, phone, or a custom identifier.
+1. **Identify the customer.** Look up or create a LoyaltyDog customer by email, phone, or a custom identifier. A local phone number matches the stored E.164 value using the program country.
 2. **Record activity.** Post a transaction so the program's rules credit points or issue rewards.
-3. **Surface state back to the user.** Fetch the wallet pass URL, point balance, or gift card balance to display in your UI.
+3. **Surface state back to the user.** Fetch the wallet pass URL, point balance, or gift card balance to display in your UI. Rule names and descriptions are `GET /v2/loyalty/programs/{programId}/rules`. A printed gift-card number is `GET /v2/giftcards/programs/{programId}/cards/lookup`, which returns balance and status only.
 
 ## A minimal example
 

@@ -3,9 +3,9 @@ title: "Connect an MCP client"
 description: "Wire the LoyaltyDog MCP server into Claude Desktop, Claude Code, Cursor, and Windsurf."
 ---
 
-Once you've [installed the MCP server](/mcp/installation), add it to your AI assistant.
+After you can run [`uvx loyaltydog-mcp`](/mcp/installation), add the server to your AI assistant.
 
-Replace `/absolute/path/to/core_api/mcp` with the local checkout path on your machine, and `your_token_here` with your API token.
+Replace `your_key_here` with your bearer secret. Prefer an `ld_test_` key until you trust the assistant with live data. `LOYALTYDOG_API_TOKEN` still works when `LOYALTYDOG_API_KEY` is unset.
 
 ## Claude Desktop
 
@@ -15,12 +15,10 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 {
   "mcpServers": {
     "loyaltydog": {
-      "command": "python3",
-      "args": ["-m", "server"],
-      "cwd": "/absolute/path/to/core_api/mcp",
+      "command": "uvx",
+      "args": ["loyaltydog-mcp"],
       "env": {
-        "LOYALTYDOG_API_URL": "https://api.loyalty.dog/v2",
-        "LOYALTYDOG_API_TOKEN": "your_token_here"
+        "LOYALTYDOG_API_KEY": "your_key_here"
       }
     }
   }
@@ -34,12 +32,7 @@ Restart Claude Desktop after saving.
 From any project directory:
 
 ```bash
-claude mcp add loyaltydog \
-  --command python3 \
-  --args -m server \
-  --cwd /absolute/path/to/core_api/mcp \
-  --env LOYALTYDOG_API_URL=https://api.loyalty.dog/v2 \
-  --env LOYALTYDOG_API_TOKEN=your_token_here
+claude mcp add loyaltydog --env LOYALTYDOG_API_KEY=your_key_here -- uvx loyaltydog-mcp
 ```
 
 ## Cursor
@@ -50,12 +43,10 @@ Edit `~/.cursor/mcp.json`:
 {
   "mcpServers": {
     "loyaltydog": {
-      "command": "python3",
-      "args": ["-m", "server"],
-      "cwd": "/absolute/path/to/core_api/mcp",
+      "command": "uvx",
+      "args": ["loyaltydog-mcp"],
       "env": {
-        "LOYALTYDOG_API_URL": "https://api.loyalty.dog/v2",
-        "LOYALTYDOG_API_TOKEN": "your_token_here"
+        "LOYALTYDOG_API_KEY": "your_key_here"
       }
     }
   }
@@ -70,12 +61,10 @@ Edit `~/.codeium/windsurf/mcp_config.json`:
 {
   "mcpServers": {
     "loyaltydog": {
-      "command": "python3",
-      "args": ["-m", "server"],
-      "cwd": "/absolute/path/to/core_api/mcp",
+      "command": "uvx",
+      "args": ["loyaltydog-mcp"],
       "env": {
-        "LOYALTYDOG_API_URL": "https://api.loyalty.dog/v2",
-        "LOYALTYDOG_API_TOKEN": "your_token_here"
+        "LOYALTYDOG_API_KEY": "your_key_here"
       }
     }
   }
@@ -88,8 +77,8 @@ In your AI assistant, ask:
 
 > "List my LoyaltyDog programs."
 
-You should see the assistant call the MCP server and return real data scoped to your token.
+The assistant should call `list_programs` and return programs that belong to that token.
 
 <Tip>
-  If the client can't find the server, check that `python3` is on your `PATH` and that `cwd` points to the directory containing `server.py`.
+  If the client cannot find the server, confirm `uvx` is on the `PATH` the client uses. Install uv from [https://docs.astral.sh/uv/getting-started/installation/](https://docs.astral.sh/uv/getting-started/installation/), then open a new terminal. `pipx run loyaltydog-mcp` or an installed `loyaltydog-mcp` can replace `uvx` as the command.
 </Tip>

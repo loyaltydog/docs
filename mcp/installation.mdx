@@ -1,51 +1,56 @@
 ---
 title: "Install the MCP server"
-description: "Clone, configure, and run the LoyaltyDog MCP server locally."
+description: "Run the LoyaltyDog MCP server from PyPI and point it at your API key."
 ---
 
-The MCP server lives in the `core_api/mcp` directory of the LoyaltyDog core API repository. It's a Python process you start locally via your AI assistant's MCP config.
+The LoyaltyDog MCP server is the `loyaltydog-mcp` package. Your AI client starts it locally. You do not clone the API repository.
 
 ## Prerequisites
 
-- Python 3.11 or later
-- A LoyaltyDog API token ([see Authentication](/authentication))
-- An MCP-capable client: Claude Desktop, Claude Code, Cursor, Windsurf, or any other MCP host
+- Python 3.10 or later. [uv](https://docs.astral.sh/uv/) is the simplest way to run the package.
+- A LoyaltyDog bearer token. See [Authentication](/authentication).
+- An MCP client such as Claude Desktop, Claude Code, Cursor, or Windsurf.
+
+`ld_live_` and `ld_test_` keys need an API Access subscription and the scope for each tool. A JWT app key keeps its current access and does not need that subscription. The server forwards whichever bearer secret you set. It does not check the subscription itself.
 
 ## Install
 
+Run it without a permanent install:
+
 ```bash
-git clone https://github.com/loyaltydog/core_api.git
-cd core_api/mcp
-pip install -r requirements.txt
+uvx loyaltydog-mcp
 ```
+
+Or with pipx:
+
+```bash
+pipx run loyaltydog-mcp
+```
+
+Or install it into the current environment:
+
+```bash
+pip install loyaltydog-mcp
+loyaltydog-mcp
+```
+
+The process speaks MCP on stdin and stdout and waits for a client. `loyaltydog-mcp --version` prints the installed version and exits.
 
 ## Configure
 
-The server reads two environment variables:
+Set these variables in the MCP client's `env` block. The installed command does not read a `.env` file.
 
-| Variable | Purpose | Example |
-| -------- | ------- | ------- |
-| `LOYALTYDOG_API_URL` | Base URL for the v2 API (no trailing slash) | `https://api.loyalty.dog/v2` |
-| `LOYALTYDOG_API_TOKEN` | Bearer token for API authentication | `eyJhbGc…` |
+| Variable | Required | Purpose |
+| -------- | -------- | ------- |
+| `LOYALTYDOG_API_KEY` | Yes | Bearer secret. An `ld_live_` key, an `ld_test_` key, or a JWT app key. |
+| `LOYALTYDOG_API_URL` | No | API base URL. Default `https://api.loyalty.dog/v2`. A trailing slash is removed. |
+| `LOYALTYDOG_API_TOKEN` | No | Older name for the same secret. Used only when `LOYALTYDOG_API_KEY` is unset. |
 
-You can set them inline in your MCP client config (recommended — see the [client setup guide](/mcp/clients)) or via a local `.env`:
+The server starts and lists its tools even when the key is missing. The first tool call then tells you to set `LOYALTYDOG_API_KEY`. The key is sent only as the bearer token.
 
-```bash
-cp .env.example .env
-# Edit .env and fill in your values
-```
-
-## Sanity-check the server
-
-You can start the server manually to verify your token works:
-
-```bash
-LOYALTYDOG_API_URL="https://api.loyalty.dog/v2" \
-LOYALTYDOG_API_TOKEN="your_token_here" \
-python3 -m server
-```
-
-If the process starts without authentication errors, you're ready to wire it into a client.
+<Note>
+Package 0.1.0 is the current PyPI release. `list_program_rules`, phone search, and `lookup_gift_card_balance` arrive in the next release. See [MCP overview](/mcp/overview).
+</Note>
 
 ## Next steps
 

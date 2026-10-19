@@ -27,7 +27,7 @@ Authorization: Bearer YOUR_API_TOKEN
 
 ## Rate limits
 
-Hashed public keys (`ld_*`) are limited per key. JWT App Keys are **not** in that limiter. See [Rate limits](/guides/rate-limits).
+Hashed public keys (`ld_*`) share one allowance and one set of throttles per merchant account. They are not limited per key or per IP. Creating more keys does not add allowance. JWT App Keys are **not** in that limiter. See [Rate limits](/guides/rate-limits).
 
 ## Errors
 

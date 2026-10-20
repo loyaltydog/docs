@@ -18,7 +18,7 @@ LoyaltyDog generates mobile wallet passes (Apple Wallet `.pkpass` and Google Wal
 3. **Issue passes.** `POST /v2/templates/{templateId}/pass` issues a pass to a customer.
 4. **Send the install URL.** Email or text the customer the `savetowallet` URL from `GET /v2/passes/{passTypeIdentifier}/{serialNumber}/url`.
 
-See the [API reference](/api-reference) for full request and response schemas.
+See the [API reference](/api-reference) for `POST /v2/templates`, `POST /v2/templates/{templateId}/pass`, and `GET /v2/passes/{passTypeIdentifier}/{serialNumber}/url`. `POST /v2/passtypes` and `GET /v2/passtypes/new/csr` are not in the public API reference.
 
 ## Updating passes
 

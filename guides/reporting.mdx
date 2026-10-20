@@ -3,38 +3,48 @@ title: "Reporting"
 description: "Pull program performance metrics out of LoyaltyDog."
 ---
 
-LoyaltyDog exposes both endpoint-driven and dashboard-driven reporting. This guide covers the API surface.
+LoyaltyDog exposes merchant metrics and program lists you can pull into a BI tool. This guide covers the API surface.
 
 ## What's available
 
-| Endpoint family | What it tells you |
+| Endpoint | What it tells you |
 | ---------------- | ----------------- |
-| `GET /v2/merchants/{id}/metrics` | High-level merchant-wide KPIs |
-| `GET /v2/merchants/{id}/metrics/chart` | Time-series data for the merchant dashboard |
-| `GET /v2/reports` | Per-program reports (transactions, customers, gift card activity) |
+| `GET /v2/merchants/{merchant_id}/metrics` | Merchant KPIs for one period |
+| `GET /v2/merchants/{merchant_id}/metrics/chart` | Time series for one metric |
+| `GET /v2/loyalty/programs/{programId}/transactions` | Transactions for a program |
+| `GET /v2/loyalty/programs/{programId}/customers` | Customers for a program |
+| `GET /v2/giftcards/programs/{programId}/reports/business` | Gift card totals (cards, sales, and balance) |
 
-See the [API reference](/api-reference) for full parameter and response details.
+`GET /v2/merchants/{merchant_id}/metrics` takes `period`. Production documents `7d`, `30d`, `90d`, and `custom`. The default is `30d`.
+
+`GET /v2/merchants/{merchant_id}/metrics/chart` takes `metric` and `period`. Production documents `member_growth`, `redemptions`, `points_issued`, and `engagement_rate`. The default metric is `member_growth`. `period` uses the same values as the metrics route.
+
+Those two merchant routes are served by the API. They are not in the public API reference.
+
+Transactions, customers, and the gift card business report are in the [API reference](/api-reference).
 
 ## Common patterns
+
+`LOYALTYDOG_API_URL` is `https://api.loyalty.dog/v2`. Append the route, such as `/merchants/m_123/metrics`.
 
 ### Daily snapshot
 
 Schedule a daily job that pulls metrics and pipes them into your BI tool:
 
 ```bash
-curl -sS "$LOYALTYDOG_API_URL/merchants/$MERCHANT_ID/metrics?period=24h" \
+curl -sS "$LOYALTYDOG_API_URL/merchants/m_123/metrics?period=30d" \
   -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN"
 ```
 
 ### Time-series for a custom dashboard
 
 ```bash
-curl -sS "$LOYALTYDOG_API_URL/merchants/$MERCHANT_ID/metrics/chart?metric=points_awarded&period=30d&granularity=day" \
+curl -sS "$LOYALTYDOG_API_URL/merchants/m_123/metrics/chart?metric=points_issued&period=30d" \
   -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN"
 ```
 
 ## Best practices
 
 - **Cache aggressively.** Reports are eventually consistent — minute-level freshness is more than enough for most dashboards.
-- **Page through large reports.** Use the `limit` and `cursor` parameters where supported.
+- **Page through large lists.** Transactions and customers accept `page`, `limit`, and `offset`.
 - **For real-time, prefer webhooks.** Polling reports is the wrong tool when you need event-level reaction. See [Webhooks](/guides/webhooks).

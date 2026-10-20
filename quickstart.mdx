@@ -17,7 +17,7 @@ Dashboard **API Keys** today are **JWTs** (the page was renamed from App Keys). 
 
 ```bash
 export LOYALTYDOG_API_KEY="paste-your-dashboard-jwt-here"
-export LOYALTYDOG_API_URL="https://api.loyalty.dog"
+export LOYALTYDOG_API_URL="https://api.loyalty.dog/v2"
 ```
 
 <Warning>
@@ -26,13 +26,13 @@ export LOYALTYDOG_API_URL="https://api.loyalty.dog"
 
 ## 2. List loyalty programs
 
-Public product routes are under **`/v2`**, not `/api/v2`.
+`LOYALTYDOG_API_URL` is `https://api.loyalty.dog/v2`, the same default the MCP server uses. Append the route path, such as `/loyalty/programs`.
 
 ```bash
 curl -sS -D - \
   -H "Authorization: Bearer ${LOYALTYDOG_API_KEY}" \
   -H "Accept: application/json" \
-  "${LOYALTYDOG_API_URL}/v2/loyalty/programs"
+  "${LOYALTYDOG_API_URL}/loyalty/programs"
 ```
 
 A successful call returns a JSON array of program objects. An empty list `[]` is success with no programs yet.
@@ -42,10 +42,10 @@ JWT App Keys have implicit full merchant access. A hashed `ld_*` key needs the `
 ### JavaScript (`fetch`)
 
 ```javascript
-const API = "https://api.loyalty.dog";
+const API = "https://api.loyalty.dog/v2";
 const key = process.env.LOYALTYDOG_API_KEY;
 
-const res = await fetch(`${API}/v2/loyalty/programs`, {
+const res = await fetch(`${API}/loyalty/programs`, {
   headers: {
     Authorization: `Bearer ${key}`,
     Accept: "application/json",
@@ -66,11 +66,11 @@ console.log(programs);
 import os
 import requests
 
-API = "https://api.loyalty.dog"
+API = "https://api.loyalty.dog/v2"
 key = os.environ["LOYALTYDOG_API_KEY"]
 
 res = requests.get(
-    f"{API}/v2/loyalty/programs",
+    f"{API}/loyalty/programs",
     headers={"Authorization": f"Bearer {key}", "Accept": "application/json"},
     timeout=30,
 )

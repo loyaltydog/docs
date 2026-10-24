@@ -30,9 +30,9 @@ The frozen public OpenAPI still describes FastAPI's default error schema (`detai
 | 403 | `forbidden` | Missing scope (message names the scope) or IP allowlist miss |
 | 404 | `not_found` | Resource does not exist |
 | 409 | `conflict` | Loyalty `Idempotency-Key` reused with a different body |
-| 429 | `rate_limited` | Burst or sustained per-key window |
-| 429 | `monthly_quota_exceeded` | UTC-month cap |
+| 429 | `rate_limited` | Per-minute or per-hour limit on the merchant account (shared across keys). Includes `Retry-After`. |
+| 429 | `monthly_quota_exceeded` | Monthly allowance reached. Hard stop until the 1st of the month (UTC). |
 | 422 | `validation_error` | Unprocessable request. Gift-card missing/conflict `Idempotency-Key` is HTTP **422** with `{detail}` — see [Idempotency](/guides/idempotency). |
 | 500 | `internal_error` | Server error |
 
-Honor `Retry-After` on 429. See [Rate limits](/guides/rate-limits).
+The `X-RateLimit-*` headers on a `rate_limited` 429 describe the limit that was hit. Honor `Retry-After` on 429. See [Rate limits](/guides/rate-limits).

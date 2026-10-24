@@ -1,23 +1,26 @@
 ---
 title: "Rate limits"
-description: "Per-key burst, sustained, and monthly caps for hashed public keys."
+description: "Per-merchant monthly allowance and minute and hour throttles for hashed public keys."
 keywords: ["rate limit", "429", "quota"]
 ---
 
-Hashed public keys are limited **per key**, not per IP. JWT App Keys are **not** in this limiter (SWE-1181).
+The allowance and throttles for hashed public keys (`ld_*`) are **per merchant account**. They are shared across all of a merchant's keys. They are not per key. They are not per IP. Creating more keys does not add allowance. JWT App Keys are **not** in this limiter (SWE-1181).
 
-| Window | Default | 429 `code` |
-| --- | --- | --- |
-| Burst | 60 / 60s | `rate_limited` |
-| Sustained | 1,000 / 3,600s | `rate_limited` |
-| Monthly | Standard 100,000; Growth 250,000; Scale 600,000 / UTC month | `monthly_quota_exceeded` |
+| Plan | Monthly calls | Per hour | Per minute |
+| --- | --- | --- | --- |
+| Standard | 100,000 | 1,000 | 60 |
+| Growth | 250,000 | 2,000 | 120 |
+| Scale | 600,000 | 5,000 | 300 |
+| Enterprise | Custom | Custom | Custom |
 
-Headers on `ld_*` responses: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`. `Retry-After` on 429 only. `Remaining` is `0` on every 429. Do not infer the wait from `Limit` — a sustained 429 still advertises the burst cap on `Limit`.
+Hitting the per-minute or per-hour limit returns **429** with code `rate_limited` and a `Retry-After` header. Headers on `ld_*` responses are `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`. `Retry-After` is sent on 429 only. `Remaining` is `0` on every 429. The `X-RateLimit-*` headers on a 429 describe the limit that was hit.
 
-Gen-1 does **not** bill overage. Hitting the monthly cap is a hard 429 until UTC month rollover.
+Hitting the monthly allowance returns **429** with code `monthly_quota_exceeded`. It is a hard stop until the allowance resets on the 1st of the month (UTC).
+
+You get an email, and the dashboard shows a banner, at 80% and 100% of the monthly allowance. There are no overage charges.
 
 Cloudflare also applies an edge ceiling on `api.loyalty.dog` (300 requests / 10s / IP) for flood protection. Dashboard and POS browser origins skip that ceiling. Server-to-server JWT traffic without an `Origin` header counts toward it.
 
 ## Watching your usage without writing code
 
-The **API Keys** page in your [dashboard](https://app.loyalty.dog/account/appkeys) shows a live quota card for each hashed key: requests used this month against your quota, error and average-latency totals for the last 30 days, and a CSV export of the underlying time series. A banner appears at 80% and 100% of your monthly quota, and you'll get an email at each of those thresholds too. This view is dashboard-only — it isn't part of the public API.
+The **API Keys** page in your [dashboard](https://app.loyalty.dog/account/appkeys) shows a live quota card for each hashed key: requests used this month, error and average-latency totals for the last 30 days, and a CSV export of the underlying time series. Usage counts toward the merchant's shared monthly allowance. A banner appears at 80% and 100% of that allowance, and you'll get an email at each of those thresholds too. This view is dashboard-only — it isn't part of the public API.

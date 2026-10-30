@@ -21,7 +21,7 @@ The machine-readable public schema is [`openapi.public.json`](/openapi.public.js
 | Kind | Shape | How you get it | Limits / freeze |
 | --- | --- | --- | --- |
 | JWT App Key | `eyJ…` three-part JWT | Dashboard [API Keys](https://app.loyalty.dog/account/appkeys). `POST /appkeys` still mints this. | Today's 401/403/429 bodies. **Not** in the hashed-key limiter. **Never** frozen for API Access cancel. |
-| Hashed public key | `ld_test_…` / `ld_live_…` | **Not self-serve.** Do not POST `/appkeys` expecting `ld_*`. | Envelope errors. Per-key 429 + monthly quota. Frozen with 402 `api_subscription_inactive` if API Access is canceled. |
+| Hashed public key | `ld_test_…` / `ld_live_…` | **Not self-serve.** Do not POST `/appkeys` expecting `ld_*`. | Envelope errors. Per-key 429 and a per-key monthly quota. A shared per-merchant allowance is planned and is not live. Frozen with 402 `api_subscription_inactive` if API Access is canceled. |
 
 There is no public issuance API. Dashboard create/rotate/revoke are not on the public OpenAPI.
 

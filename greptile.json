@@ -1,0 +1,8 @@
+{
+  "effort": "base",
+  "triggerOnDrafts": false,
+  "excludeAuthors": ["dependabot[bot]", "renovate[bot]"],
+  "disabledLabels": ["skip-review"],
+  "ignorePatterns": "favicon.svg\nlogo/logofull.png\nlogo/logomark.png\nopenapi.public.json",
+  "instructions": "This is the LoyaltyDog developer documentation. Review for factual accuracy against the LoyaltyDog core_api codebase or an approved plan. Flag endpoints, parameters, behavior, and examples that do not match that ground truth. Do not comment on prose style, wording, or formatting."
+}

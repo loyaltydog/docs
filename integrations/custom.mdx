@@ -9,38 +9,37 @@ If LoyaltyDog doesn't yet have a first-party integration for your platform, you 
 
 A typical integration does three things:
 
-1. **Identify the customer.** Look up or create a LoyaltyDog customer by email, phone, or a custom identifier. A local phone number matches the stored E.164 value using the program country.
-2. **Record activity.** Post a transaction so the program's rules credit points or issue rewards.
+1. **Identify the customer.** Look up a customer with `GET /v2/loyalty/programs/{programId}/customers`, or create one with `POST /v2/loyalty/programs/{programId}/customers`. A local phone number matches the stored E.164 value using the program country.
+2. **Record activity.** Add points with `POST /v2/loyalty/programs/{programId}/customers/{customerId}/points/add`. Read program transactions with `GET /v2/loyalty/programs/{programId}/transactions`.
 3. **Surface state back to the user.** Fetch the wallet pass URL, point balance, or gift card balance to display in your UI. Rule names and descriptions are `GET /v2/loyalty/programs/{programId}/rules`. A printed gift-card number is `GET /v2/giftcards/programs/{programId}/cards/lookup`, which returns balance and status only.
 
 ## A minimal example
 
+`LOYALTYDOG_API_URL` is `https://api.loyalty.dog/v2`. Append the route, such as `/loyalty/programs/prog_123/customers`.
+
 ```bash
-# 1. Create or find the customer
-curl -sS -X POST "$LOYALTYDOG_API_URL/customers" \
+# 1. Create the customer
+curl -sS -X POST "$LOYALTYDOG_API_URL/loyalty/programs/prog_123/customers" \
   -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
   -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 11111111-2222-4333-8444-555555555555" \
   -d '{
-    "programId": "prog_123",
     "email": "ada@example.com"
   }'
 
-# 2. Award points for a sale
-curl -sS -X POST "$LOYALTYDOG_API_URL/loyalty/programs/prog_123/transactions" \
+# 2. Award points
+curl -sS -X POST "$LOYALTYDOG_API_URL/loyalty/programs/prog_123/customers/cust_456/points/add" \
   -H "Authorization: Bearer $LOYALTYDOG_API_TOKEN" \
   -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 66666666-7777-4888-8999-aaaaaaaaaaaa" \
   -d '{
-    "customerId": "cust_456",
-    "type": "earn",
-    "amount": 5000,
-    "currency": "USD",
-    "reference": "order_789"
+    "points": 50
   }'
 ```
 
 ## Best practices
 
-- **Make calls idempotent.** Use your own order or transaction ID in the `reference` field so retries don't double-credit.
+- **Make calls idempotent.** Send an `Idempotency-Key` header on customer creates and points writes. Use a new UUID for each operation, and send that same key again when you retry it. See [Idempotency](/guides/idempotency).
 - **Handle 429s gracefully.** Back off when you see rate-limit responses and respect the `Retry-After` header.
 - **Subscribe to webhooks.** Don't poll for state changes — let LoyaltyDog notify you. See [Webhooks](/guides/webhooks).
 - **Scope tokens per integration.** Use a dedicated app key for each integration so you can rotate or revoke without impacting other systems.

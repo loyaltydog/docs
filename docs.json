@@ -91,6 +91,14 @@
       },
       {
         "tab": "API reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          }
+        ],
         "openapi": {
           "source": "openapi.public.json",
           "directory": "api-reference"
@@ -125,7 +133,7 @@
       },
       {
         "label": "Contact",
-        "href": "https://loyalty.dog/contact-us"
+        "href": "https://loyalty.dog/support/"
       }
     ],
     "primary": {
@@ -150,8 +158,7 @@
   "footer": {
     "socials": {
       "github": "https://github.com/loyaltydog",
-      "linkedin": "https://www.linkedin.com/company/loyaltydog",
-      "x": "https://x.com/loyaltydog"
+      "linkedin": "https://www.linkedin.com/company/loyaltydog"
     },
     "links": [
       {
@@ -159,7 +166,7 @@
         "items": [
           { "label": "Marketing site", "href": "https://loyalty.dog" },
           { "label": "Pricing", "href": "https://loyalty.dog/pricing" },
-          { "label": "Contact", "href": "https://loyalty.dog/contact-us" }
+          { "label": "Contact", "href": "https://loyalty.dog/support/" }
         ]
       },
       {
@@ -174,7 +181,7 @@
       {
         "header": "Legal",
         "items": [
-          { "label": "Terms of service", "href": "https://loyalty.dog/loyalty-program-terms-service" },
+          { "label": "Terms of service", "href": "https://loyalty.dog/loyalty-program-terms-of-service/" },
           { "label": "Privacy policy", "href": "https://loyalty.dog/privacy-policy" }
         ]
       }

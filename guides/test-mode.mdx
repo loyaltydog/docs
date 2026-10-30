@@ -9,7 +9,7 @@ keywords: ["test mode", "ld_test_", "sandbox"]
 ## Today (gen-1 MVP)
 
 - There is **no** self-serve `ld_test_` issuance. `POST /appkeys` mints JWT.
-- `ld_test_` / `ld_live_`, when issued, share the same public routes and the same per-merchant limiter. The allowance and throttles are shared across all of a merchant's keys (not per key, not per IP). Creating more keys does not add allowance.
+- `ld_test_` / `ld_live_`, when issued, share the same public routes and the same per-key limiter. A planned change shares one allowance across a merchant's keys. That change is not live.
 - Gen-1 does **not** isolate test traffic onto a sandbox dataset. Do not assume a test key cannot touch live wallet or gift-card money until that isolation ships.
 
 ## Schema

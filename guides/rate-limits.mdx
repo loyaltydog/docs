@@ -1,26 +1,52 @@
 ---
 title: "Rate limits"
-description: "Per-merchant monthly allowance and minute and hour throttles for hashed public keys."
+description: "Per-key burst, sustained, and monthly caps for hashed public keys. Per-merchant limits are planned."
 keywords: ["rate limit", "429", "quota"]
 ---
 
-The allowance and throttles for hashed public keys (`ld_*`) are **per merchant account**. They are shared across all of a merchant's keys. They are not per key. They are not per IP. Creating more keys does not add allowance. JWT App Keys are **not** in this limiter (SWE-1181).
+Hashed public keys (`ld_*`) are limited **per key**, not per IP. JWT App Keys are **not** in this limiter (SWE-1181).
+
+| Window | What production enforces | 429 `code` |
+| --- | --- | --- |
+| Burst | 60 requests / 60 seconds, per key | `rate_limited` |
+| Sustained | 1,000 requests / 3,600 seconds, per key | `rate_limited` |
+| Monthly | Standard 100,000; Growth 250,000; Scale 600,000 calls per key per UTC month | `monthly_quota_exceeded` |
+
+A merchant with no stored plan uses the Standard cap of 100,000. Enterprise and any other plan the API does not recognize each use that same cap of 100,000 calls per key per UTC month.
+
+Headers on `ld_*` responses are `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`. `Retry-After` is sent on 429 only. `Remaining` is `0` on every 429. A sustained 429 still puts the burst cap of 60 on `X-RateLimit-Limit`. Use `Retry-After` for the wait.
+
+Hitting the monthly cap returns **429** `monthly_quota_exceeded`. That is a hard stop until the cap resets on the 1st of the next month (UTC). There are no overage charges.
+
+You get an email, and the dashboard shows a banner, at 80% and 100% of that key's monthly cap.
+
+Cloudflare also applies an edge ceiling on `api.loyalty.dog` (300 requests / 10s / IP) for flood protection. Dashboard and POS browser origins skip that ceiling. Server-to-server JWT traffic without an `Origin` header counts toward it.
+
+## Planned limits
+
+<Note>
+  **Planned, not live.** Production still enforces the per-key limits above.
+</Note>
+
+The planned allowance and the planned minute and hour throttles are **per merchant account**. Every hashed key on the account shares them. Requests from more than one IP still share that account allowance. Creating more keys does not add allowance. JWT App Keys stay outside this limiter.
 
 | Plan | Monthly calls | Per hour | Per minute |
 | --- | --- | --- | --- |
 | Standard | 100,000 | 1,000 | 60 |
 | Growth | 250,000 | 2,000 | 120 |
 | Scale | 600,000 | 5,000 | 300 |
-| Enterprise | Custom | Custom | Custom |
+| Enterprise | 600,000 by default | 5,000 | 300 |
 
-Hitting the per-minute or per-hour limit returns **429** with code `rate_limited` and a `Retry-After` header. Headers on `ld_*` responses are `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`. `Retry-After` is sent on 429 only. `Remaining` is `0` on every 429. The `X-RateLimit-*` headers on a 429 describe the limit that was hit.
+Enterprise monthly calls use the Scale cap of 600,000 when no per-merchant override is stored. A positive stored override replaces that monthly cap for that merchant. Enterprise minute and hour limits default to the Scale limits: 300 per minute and 5,000 per hour.
 
-Hitting the monthly allowance returns **429** with code `monthly_quota_exceeded`. It is a hard stop until the allowance resets on the 1st of the month (UTC).
+A per-minute or per-hour limit returns **429** `rate_limited` with `Retry-After`. On that 429, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` describe the minute or hour limit that was hit.
 
-You get an email, and the dashboard shows a banner, at 80% and 100% of the monthly allowance. There are no overage charges.
+The monthly cap still returns **429** `monthly_quota_exceeded`. Resetting that cap on the merchant's billing date is **planned** and is not live. The billing date is the subscription's billing-cycle anchor. An anchor on the 31st moves to the last valid day in a shorter month, then returns to the 31st. A merchant with no stored anchor, including an offline Enterprise account, keeps the UTC calendar month (the 1st). Until the billing-date reset ships, the monthly cap resets on the 1st of the month (UTC).
 
-Cloudflare also applies an edge ceiling on `api.loyalty.dog` (300 requests / 10s / IP) for flood protection. Dashboard and POS browser origins skip that ceiling. Server-to-server JWT traffic without an `Origin` header counts toward it.
+Emails and the dashboard banner at 80% and 100% are planned to follow the shared merchant allowance, once per merchant.
 
 ## Watching your usage without writing code
 
-The **API Keys** page in your [dashboard](https://app.loyalty.dog/account/appkeys) shows a live quota card for each hashed key: requests used this month, error and average-latency totals for the last 30 days, and a CSV export of the underlying time series. Usage counts toward the merchant's shared monthly allowance. A banner appears at 80% and 100% of that allowance, and you'll get an email at each of those thresholds too. This view is dashboard-only — it isn't part of the public API.
+The **API Keys** page in your [dashboard](https://app.loyalty.dog/account/appkeys) shows a live quota card for each hashed key: requests used this month against your quota, error and average-latency totals for the last 30 days, and a CSV export of the underlying time series. A banner appears at 80% and 100% of your monthly quota, and you'll get an email at each of those thresholds too. This view is dashboard-only — it isn't part of the public API.
+
+A planned change counts every key on the account toward one merchant allowance, and sends those notices once per merchant. That change is not live.

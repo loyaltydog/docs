@@ -11,7 +11,7 @@ A typical integration does three things:
 
 1. **Identify the customer.** Look up a customer with `GET /v2/loyalty/programs/{programId}/customers`, or create one with `POST /v2/loyalty/programs/{programId}/customers`. A local phone number matches the stored E.164 value using the program country.
 2. **Record activity.** Add points with `POST /v2/loyalty/programs/{programId}/customers/{customerId}/points/add`. Read program transactions with `GET /v2/loyalty/programs/{programId}/transactions`.
-3. **Surface state back to the user.** Fetch the wallet pass URL, point balance, or gift card balance to display in your UI. Rule names and descriptions are `GET /v2/loyalty/programs/{programId}/rules`. A printed gift-card number is `GET /v2/giftcards/programs/{programId}/cards/lookup`, which returns balance and status only.
+3. **Surface state back to the user.** Fetch the wallet pass URL, point balance, or gift card balance to display in your UI.
 
 ## A minimal example
 

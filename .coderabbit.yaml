@@ -5,7 +5,7 @@ tone_instructions: >-
   approved plan. Do not comment on prose style, wording, or formatting.
 reviews:
   auto_review:
-    enabled: false
+    enabled: true
     drafts: false
     ignore_usernames:
       - "dependabot[bot]"

@@ -47,8 +47,10 @@ These instructions apply to AI coding assistants (Claude Code, Cursor, Windsurf,
 - Add the file's path (without `.mdx`) to the appropriate group in `docs.json` under `navigation.tabs[0].groups`.
 - Use frontmatter with `title` and `description`.
 
-## Code review
+## PR review
 
-Reviews use CodeRabbit, not Greptile. Settings live in `.coderabbit.yaml`. `greploop` means request a CodeRabbit review (`@coderabbitai review` on the pull request) and iterate until it is satisfactory.
+CodeRabbit does not run when a pull request opens (`reviews.auto_review.enabled: false` in `.coderabbit.yaml`). Do not request a Greptile review.
 
-This repository is low-risk. When you change it, skip requesting a CodeRabbit review and rely on a thorough adversarial self-review.
+Do an adversarial self-review and iterate until it is clean. This is a low-risk repo. Skip the final CodeRabbit review before `main`. Loc's approval is not required for `main`.
+
+When `greploop` is used, run a CodeRabbit loop: comment `@coderabbitai review` and iterate until the review is satisfactory.

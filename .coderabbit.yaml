@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+tone_instructions: >-
+  Review for factual accuracy against the LoyaltyDog core_api codebase or an
+  approved plan. Do not comment on prose style, wording, or formatting.
+reviews:
+  auto_review:
+    enabled: false
+    drafts: false
+    ignore_usernames:
+      - "dependabot[bot]"
+      - "renovate[bot]"
+    labels:
+      - "!skip-review"
+  path_filters:
+    - "!favicon.svg"
+    - "!logo/logofull.png"
+    - "!logo/logomark.png"
+    - "!openapi.public.json"
+  path_instructions:
+    - path: "**"
+      instructions: >-
+        This is the LoyaltyDog developer documentation. Review for factual
+        accuracy against the LoyaltyDog core_api codebase or an approved plan.
+        Flag endpoints, parameters, behavior, and examples that do not match
+        that ground truth. Do not comment on prose style, wording, or
+        formatting.

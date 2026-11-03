@@ -49,6 +49,6 @@ These instructions apply to AI coding assistants (Claude Code, Cursor, Windsurf,
 
 ## Code review
 
-Reviews use CodeRabbit, not Greptile. Settings live in `.coderabbit.yaml`. `greploop` means request a CodeRabbit review (`@coderabbitai review` on the pull request) and iterate until it is satisfactory.
+Reviews use CodeRabbit, not Greptile. Settings live in `.coderabbit.yaml`. A mention of Greptile in these rules means CodeRabbit. `greploop` means a CodeRabbit re-review (`@coderabbitai review` on the pull request).
 
-This repository is low-risk. When you change it, skip requesting a CodeRabbit review and rely on a thorough adversarial self-review.
+CodeRabbit reviews every pull request into the default branch automatically, including later pushes. While you iterate, you may request another pass with `@coderabbitai review`. Do not request re-reviews excessively. Exclusions already set in `.coderabbit.yaml` still apply: drafts, Dependabot, Renovate, and the `skip-review` label.
